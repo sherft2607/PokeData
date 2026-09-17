@@ -12,14 +12,19 @@
     "rhino_bridge": "not checked — only affects Phase 12 Step B"
   },
   "phase": 15,
-  "phases_complete": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+  "phases_complete": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
   "github": {
     "repo": "sherft2607/PokeData",
     "url": "https://github.com/sherft2607/PokeData",
     "visibility": "public",
     "pushed_at": "2026-09-17",
-    "workflows": [],
+    "workflows": [".github/workflows/build.yml", ".github/workflows/publish.yml"],
     "released_tags": []
+  },
+  "package": {
+    "version": "1.0.0",
+    "dist_yak_files": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"],
+    "yak_validated": true
   },
   "skipped_phases": [9],
   "gates_passed": [1, 2, 3, 4, { "gate": 5, "auto": true, "reason": "no auth on this API, nothing to test" }, 6],
