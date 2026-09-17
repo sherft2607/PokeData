@@ -1,0 +1,25 @@
+{
+  "platform": "PokeAPI",
+  "base_url": "https://pokeapi.co/api/v2",
+  "auth_method": "none — public, unauthenticated API",
+  "api_version": "v2 (spec dated 20220523)",
+  "extra_headers": [],
+  "openapi_spec_url": "https://raw.githubusercontent.com/oapicf/pokeapi-clients/main/specification/pokeapi.yml",
+  "spec_local_copy": "PokeData/spec_openapi.yaml",
+  "endpoints_found": 96,
+  "all_methods": "GET only — read-only API, no write/delete endpoints",
+  "resource_groups": {
+    "Berries": ["berry", "berry-firmness", "berry-flavor"],
+    "Contests": ["contest-type", "contest-effect", "super-contest-effect"],
+    "Encounters": ["encounter-method", "encounter-condition", "encounter-condition-value"],
+    "Evolution": ["evolution-chain", "evolution-trigger"],
+    "Games": ["generation", "pokedex", "version", "version-group"],
+    "Items": ["item", "item-attribute", "item-category", "item-fling-effect", "item-pocket"],
+    "Locations": ["location", "location-area", "pal-park-area", "region"],
+    "Machines": ["machine"],
+    "Moves": ["move", "move-ailment", "move-battle-style", "move-category", "move-damage-class", "move-learn-method", "move-target"],
+    "Pokemon": ["ability", "characteristic", "egg-group", "gender", "growth-rate", "nature", "pokeathlon-stat", "pokemon", "pokemon-color", "pokemon-form", "pokemon-habitat", "pokemon-shape", "pokemon-species", "stat", "type"]
+  },
+  "shape_note": "PokeAPI is a flat resource graph, not a strict parent/child hierarchy — every resource has a list endpoint (paged, filterable by limit/offset) and a detail endpoint (by numeric id OR by name string, both accepted at the same {id} path param). Detail responses cross-reference other resources via NamedAPIResource objects ({name, url}) rather than nesting — e.g. a pokemon response links out to its species, moves, abilities, types; pokemon-species links to its evolution-chain. The OpenAPI spec itself does not carry response body schemas (responses are typed as opaque text/plain), so field shapes need to come from a live sample call per resource during Phase 6.",
+  "spec_url_correction": "The docs_url given at intake (raw.githubusercontent.com/.../master/openapi-spec/openapi.yaml) 404'd — wrong branch (master vs main) and wrong path (openapi-spec/ vs specification/, filename pokeapi.yml not openapi.yaml). Corrected via GitHub Contents API listing."
+}

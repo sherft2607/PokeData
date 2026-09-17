@@ -1,0 +1,182 @@
+[
+  {
+    "endpoint_id": "pokemon_read",
+    "component": "GetPokemonComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokemon/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "type_list",
+    "component": "GetTypeMatrixComponent",
+    "method": "GET",
+    "url_template": "/api/v2/type/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [],
+    "query_params": [
+      {
+        "name": "limit",
+        "type": "integer",
+        "required": false
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "required": false
+      }
+    ],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "Paginated \u2014 pagination key: offset",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "type_read",
+    "component": "GetTypeComponent",
+    "method": "GET",
+    "url_template": "/api/v2/type/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "pokemon-species_read",
+    "component": "GetEvolutionChainComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokemon-species/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "evolution-chain_read",
+    "component": "GetEvolutionChainComponent",
+    "method": "GET",
+    "url_template": "/api/v2/evolution-chain/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "move_read",
+    "component": "GetMoveComponent",
+    "method": "GET",
+    "url_template": "/api/v2/move/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "ability_read",
+    "component": "GetAbilityComponent",
+    "method": "GET",
+    "url_template": "/api/v2/ability/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "workflows": [
+    {
+      "name": "Base stat radar / parametric geometry driver",
+      "user_goal": "Look up a Pokemon by name or ID and pull its six base stats (HP, Attack, Defense, Sp. Atk, Sp. Def, Speed), height/weight/types, and both sprite image URLs (front_default, official artwork), to drive parametric geometry (radar/spider diagrams, stat-sized swarms of shapes) and image samplers natively in Grasshopper",
+      "data_shape": "single pokemon -> item fields (height, weight, sprite URLs) + parallel stat name/value lists",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "Batch Pokedex table (tabular benchmark, read direction)",
+      "user_goal": "Given a list/tree of Pokemon names or IDs on the canvas, fetch each in one batch and output a parallel tree of key fields (types, height, weight, base experience, stat totals) -- the read-side equivalent of the cross-platform tabular benchmark: turning a simple list into a full data table, except the table is sourced FROM the API rather than written TO it (PokeAPI has no write endpoints)",
+      "data_shape": "list of names/ids -> tree of records, one branch per input, parallel-indexed",
+      "varies_per_item": true,
+      "benchmark": "tabular-to-platform (adapted: API is read-only, so this is table-from-platform, not table-to-platform)"
+    },
+    {
+      "name": "Type effectiveness matrix",
+      "user_goal": "Build the full 18x18 type damage-relations matrix (double/half/no damage to/from) from the type resource, as a tabular tree suitable for a heatmap grid or lookup table on the canvas -- something tedious to assemble by hand from 18 separate API pages, trivial as one tree-flattening component in GH",
+      "data_shape": "all types -> 18x18 tree, row = attacking type, column = defending type, value = multiplier",
+      "varies_per_item": true,
+      "benchmark": "tabular-to-platform (adapted: full matrix built from repeated reads)"
+    },
+    {
+      "name": "Evolution chain graph",
+      "user_goal": "Fetch a species' evolution chain and flatten it into parent->child edges with trigger conditions (level, item, trade, etc.), so Grasshopper can generate a parametric branching diagram (node positions computed from tree depth) instead of the user tracing the chain by hand",
+      "data_shape": "evolution-chain id -> flattened tree of {parent, child, trigger} edges, branch per chain depth",
+      "varies_per_item": true,
+      "benchmark": null
+    },
+    {
+      "name": "Move / ability lookup for team-building tools",
+      "user_goal": "Look up a move or ability's mechanical fields (power, accuracy, PP, damage class, effect text) by name, for use as inputs into a larger parametric team-planning or damage-calculation graph built on the GH canvas",
+      "data_shape": "single move or ability -> item of scalar fields",
+      "varies_per_item": false,
+      "benchmark": null
+    }
+  ]
+}

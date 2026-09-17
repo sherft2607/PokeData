@@ -1,0 +1,46 @@
+{
+  "plugin_name": "PokeData",
+  "plugin_prefix": "PK",
+  "resources_path": "Icons",
+  "resx_path": "Properties/Resources.resx",
+
+  "defaults": {
+    "size": 24,
+    "fg_color": "#FFFFFF",
+    "background": {
+      "shape": {
+        "type": "rounded-square",
+        "gradient": { "from": "#EE1515", "to": "#B30000", "angle": 135 }
+      }
+    }
+  },
+
+  "plugin_icon": {
+    "size": 16,
+    "fg_iconify_id": "mdi:pokeball",
+    "fg_color": "#FFFFFF",
+    "background": {
+      "shape": {
+        "type": "rounded-square",
+        "gradient": { "from": "#EE1515", "to": "#B30000", "angle": 135 }
+      }
+    }
+  },
+
+  "components": [
+    { "name": "GetPokemon", "subcategory": "Pokemon", "fg_iconify_id": "mdi:pokeball" },
+    { "name": "GetPokemonBatch", "subcategory": "Pokemon", "fg_iconify_id": "mdi:view-grid" },
+    { "name": "GetPokemonSpecies", "subcategory": "Pokemon", "fg_iconify_id": "mdi:book-open-variant" },
+    { "name": "SpriteDownloader", "subcategory": "Pokemon", "fg_iconify_id": "ri:image-download-fill" },
+
+    { "name": "GetType", "subcategory": "Types", "fg_iconify_id": "mdi:fire" },
+    { "name": "GetTypeMatrix", "subcategory": "Types", "fg_iconify_id": "mdi:table-large" },
+
+    { "name": "GetEvolutionChain", "subcategory": "Evolution", "fg_iconify_id": "mdi:source-branch" },
+
+    { "name": "GetMove", "subcategory": "Moves", "fg_iconify_id": "mdi:sword-cross" },
+    { "name": "GetAbility", "subcategory": "Moves", "fg_iconify_id": "mdi:lightning-bolt" },
+
+    { "name": "PokemonTypePreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-list-bulleted-type" }
+  ]
+}

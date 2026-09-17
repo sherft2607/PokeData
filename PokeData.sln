@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeData", "PokeData.csproj", "{F21257C0-8AD8-4E78-8E2D-211F458264AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeData.Tests", "PokeData.Tests\PokeData.Tests.csproj", "{C0129C2C-619E-4F53-A1AC-0207FB9D102A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F21257C0-8AD8-4E78-8E2D-211F458264AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21257C0-8AD8-4E78-8E2D-211F458264AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F21257C0-8AD8-4E78-8E2D-211F458264AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F21257C0-8AD8-4E78-8E2D-211F458264AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0129C2C-619E-4F53-A1AC-0207FB9D102A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0129C2C-619E-4F53-A1AC-0207FB9D102A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0129C2C-619E-4F53-A1AC-0207FB9D102A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0129C2C-619E-4F53-A1AC-0207FB9D102A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

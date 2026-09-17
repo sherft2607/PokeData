@@ -1,0 +1,10 @@
+{
+  "plugin_name": "PokeData",
+  "plugin_prefix": "PK",
+  "docs_url": "https://raw.githubusercontent.com/oapicf/pokeapi-clients/master/openapi-spec/openapi.yaml",
+  "author": { "name": "Shandon Herft", "contact": "shandonherft@gmail.com" },
+  "github_org": "sherft2607",
+  "token_ready": true,
+  "token_note": "PokeAPI is public, no authentication required",
+  "seed_ids": {}
+}

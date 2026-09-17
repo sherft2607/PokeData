@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <!-- PokeDataParsing.cs is compiled shared with the main net48 target, which can't use `?`
+         nullable-reference syntax (C# 7.3 default) — suppress the resulting warnings here instead
+         of annotating the shared file. -->
+    <NoWarn>$(NoWarn);CS8600;CS8604;CS8625</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+  </ItemGroup>
+  <!-- Compile the pure parsing logic in directly — no reference to the windows-only .gha -->
+  <ItemGroup>
+    <Compile Include="..\Utilities\PokeDataParsing.cs" />
+  </ItemGroup>
+</Project>

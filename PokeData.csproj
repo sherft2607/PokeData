@@ -1,0 +1,98 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+  <PropertyGroup>
+    <!-- Select the framework(s) you wish to target.
+        Rhino 6: net45
+        Rhino 7: net48
+        Rhino 8 Windows: net48, net7.0, net7.0-windows, net7.0-windows10.0.22000.0, etc
+        Rhino 8 Mac: net7.0, net7.0-macos, net7.0-macos12.0, etc
+    -->
+    <TargetFrameworks>net7.0-windows;net7.0;net48</TargetFrameworks>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <TargetExt>.gha</TargetExt>
+    <!-- CA1416: System.Drawing / WinForms platform-compat warnings on the net7.0 (Mac) target are
+         expected and unavoidable for a GH plugin -->
+    <NoWarn>$(NoWarn);NU1701;NETSDK1086;CA1416</NoWarn>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Required for the Bitmap (icon) resources in Resources.resx to build on net48 and net7.0 (Mac) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Specifies information for Assembly and Yak -->
+    <Version>1.0.0</Version>
+    <Title>PokeData</Title>
+    <Company>Shandon Herft</Company>
+    <Description>Look up Pokemon, types, evolution chains, moves and abilities from PokeAPI directly on the Grasshopper canvas. Built with the PleaseREST Claude Code plugin (please-rest v1.0.0).</Description>
+  </PropertyGroup>
+
+  <!-- Test project lives in a subfolder; keep it out of the main plugin build -->
+  <ItemGroup>
+    <Compile Remove="PokeData.Tests\**\*.cs" />
+    <EmbeddedResource Remove="PokeData.Tests\**" />
+    <None Remove="PokeData.Tests\**" />
+  </ItemGroup>
+
+  <!-- Yak packaging: a Release build must leave ONLY what ships in bin/Release/<tfm> -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+
+  <!-- Yak packaging inputs: manifest.yml + the 16x16 category icon get copied to the output folder -->
+  <ItemGroup>
+    <None Include="manifest.yml" CopyToOutputDirectory="PreserveNewest" Condition="Exists('manifest.yml')" />
+    <None Include="Icons\PK_PokeDataLogo.png" Link="PokeDataLogo.png" CopyToOutputDirectory="PreserveNewest" Condition="Exists('Icons\PK_PokeDataLogo.png')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grasshopper" Version="7.0.20314.3001" Condition="$(TargetFramework) == 'net48'" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="8.0.23304.9001" Condition="!$(TargetFramework.StartsWith('net4'))" ExcludeAssets="runtime" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- Runtime support for the preserialized Bitmap resources above -->
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- net48 (Rhino 7): System.Net.Http facade is not auto-referenced in an SDK-style net48 project,
+       but PokeDataClient.cs uses HttpClient/HttpRequestMessage/HttpMethod -->
+  <ItemGroup Condition="$(TargetFramework) == 'net48'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <!-- For Windows only builds -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-windows')) or $(TargetFramework.StartsWith('net4'))">
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <!-- Reference WinForms for .NET 7.0 on macOS -->
+  <ItemGroup Condition="!($(TargetFramework.Contains('-windows')) or $(TargetFramework.StartsWith('net4')))">
+    <!-- Rhino 8.11 and later you can use this -->
+    <!-- <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" /> -->
+    
+    <!-- Rhino 8.10 and earlier -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" ExcludeAssets="all" GeneratePathProperty="true" />
+    <Reference Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\System.Windows.Forms.dll" Private="False" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Enable debugging in Rhino 7 on Mac -->
+  <Target Name="CopyPdbForMonoDebugging" AfterTargets="AfterBuild">
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(TargetDir)$(TargetName).gha.pdb"
+          Condition="$([MSBuild]::IsOSPlatform(OSX)) and $(TargetFramework.StartsWith('net4')) and Exists('$(TargetDir)$(TargetName).pdb')" />
+  </Target>
+
+</Project>

@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+*.user
+*.DS_Store
+dist/
+.env
+*.local
+dogfood/
+.claude/
+settings.local.json
+Icons/_preview/
+spec_openapi.yaml

@@ -1,0 +1,238 @@
+[
+  {
+    "endpoint_id": "pokemon_read",
+    "component": "GetPokemonComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokemon/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: types[].type.name, height, weight, base_experience, stats[].stat.name/base_stat, sprites.front_default, sprites.other[\"official-artwork\"].front_default"
+    }
+  },
+  {
+    "endpoint_id": "type_list",
+    "component": "GetTypeMatrixComponent",
+    "method": "GET",
+    "url_template": "/api/v2/type/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [],
+    "query_params": [
+      {
+        "name": "limit",
+        "type": "integer",
+        "required": false
+      },
+      {
+        "name": "offset",
+        "type": "integer",
+        "required": false
+      }
+    ],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "Paginated \u2014 pagination key: offset",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: paginated {name, url} results"
+    }
+  },
+  {
+    "endpoint_id": "type_read",
+    "component": "GetTypeComponent",
+    "method": "GET",
+    "url_template": "/api/v2/type/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: damage_relations.{double_damage_to/from, half_damage_to/from, no_damage_to/from} each a list of {name, url}"
+    }
+  },
+  {
+    "endpoint_id": "pokemon-species_read",
+    "component": "GetEvolutionChainComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokemon-species/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: evolution_chain.url"
+    }
+  },
+  {
+    "endpoint_id": "evolution-chain_read",
+    "component": "GetEvolutionChainComponent",
+    "method": "GET",
+    "url_template": "/api/v2/evolution-chain/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: chain.species.name + nested chain.evolves_to[].evolution_details[].trigger.name"
+    }
+  },
+  {
+    "endpoint_id": "move_read",
+    "component": "GetMoveComponent",
+    "method": "GET",
+    "url_template": "/api/v2/move/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: power, accuracy, pp, damage_class.name, type.name, effect_entries[].effect"
+    }
+  },
+  {
+    "endpoint_id": "ability_read",
+    "component": "GetAbilityComponent",
+    "method": "GET",
+    "url_template": "/api/v2/ability/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      {
+        "name": "id",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: generation.name, effect_entries[].effect"
+    }
+  }
+]
