@@ -10,8 +10,10 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  build:
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
 
     steps:
       - name: Checkout
@@ -132,6 +134,29 @@ jobs:
           }
           Get-ChildItem dist/*.zip
 
+      # softprops/action-gh-release's temp-dir handling is unreliable on windows-latest
+      # ("Error creating asset temp dir") — hand the built assets to a Linux job for the
+      # actual Release upload instead of running it here.
+      - name: Upload dist/ artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: dist/
+          retention-days: 1
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download dist/ artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: dist
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -139,6 +164,6 @@ jobs:
             dist/*.zip
             dist/*.yak
           generate_release_notes: true
-          name: "PokeData ${{ steps.version.outputs.VERSION }}"
+          name: "PokeData ${{ needs.build.outputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
