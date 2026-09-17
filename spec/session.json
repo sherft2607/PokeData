@@ -26,6 +26,12 @@
     "dist_yak_files": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"],
     "yak_validated": true
   },
+  "gate7": {
+    "passed": true,
+    "tested_platforms": ["Rhino 8 Windows"],
+    "untested_platforms": ["Rhino 7 Windows", "Rhino 8 Mac"],
+    "note": "Release notes and Food4Rhino listing must flag Rh7/Mac as untested per pr-yak-package"
+  },
   "skipped_phases": [9],
   "gates_passed": [1, 2, 3, 4, { "gate": 5, "auto": true, "reason": "no auth on this API, nothing to test" }, 6],
   "gates_pending": [],
