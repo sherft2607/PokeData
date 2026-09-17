@@ -26,6 +26,12 @@
     "dist_yak_files": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"],
     "yak_validated": true
   },
+  "published": {
+    "github_release": { "tag": "v1.0.0", "url": "https://github.com/sherft2607/PokeData/releases/tag/v1.0.0", "assets": 6 },
+    "yak_pushed": { "packages": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"], "pushed": true },
+    "food4rhino_url": null,
+    "backfilled": true
+  },
   "gate7": {
     "passed": true,
     "tested_platforms": ["Rhino 8 Windows"],
