@@ -1,6 +1,8 @@
 # Changelog
 
-## 1.0.0
+## 1.0.0 — 2026-09-17
+
+[GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0)
 
 - Initial release: Pokemon, Types, Evolution, Moves, and Presets tabs.
 - `Get Pokemon` / `Get Pokemon Batch` — lookup, types, stats, sprites, cry URLs.

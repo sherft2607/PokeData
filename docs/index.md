@@ -6,8 +6,8 @@ directly on the Grasshopper canvas — no auth required, since PokeAPI is fully 
 - **Version:** 1.0.0
 - **License:** MIT
 - **GitHub:** https://github.com/sherft2607/PokeData
-- **Food4Rhino:** _(added once listed on food4rhino.com)_
-- **Released:** _(added at first tagged release)_
+- **Food4Rhino:** _(pending listing)_
+- **Released:** 2026-09-17 — [v1.0.0](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0)
 
 ## Install
 

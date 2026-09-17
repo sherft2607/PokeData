@@ -36,8 +36,8 @@ are in [docs/examples/](docs/examples/).
 <!-- pr:begin install -->
 ## Installation
 
-**Food4Rhino:** `(pending first release)`
-**Yak:** `_PackageManager` → search `pokedata` `(pending first release)`
+**Food4Rhino:** `(pending listing)`
+**Yak:** `_PackageManager` → search `pokedata`
 
 **Rhino 8 note:** the Rhino 8 packages are built for .NET 7 and load only when Rhino runs on the
 .NET Core runtime (its default). If the PokeData tab is missing, run `SetDotNetRuntime` in Rhino,
