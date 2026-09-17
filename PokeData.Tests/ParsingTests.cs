@@ -281,5 +281,94 @@ namespace PokeData.Tests
             Assert.Equal("", legacy);
             Assert.Equal("", latest);
         }
+
+        // --- null-field fixtures (reported live bug: "Cannot access child value on JValue") ----
+
+        [Fact]
+        public void ParseCries_CriesFieldIsJsonNull_DoesNotThrow_ReturnsEmptyStrings()
+        {
+            // "cries": null -- deserializes to a JValue(null), not a C# null reference
+            var pokemon = JObject.Parse(@"{ ""name"": ""pikachu"", ""cries"": null }");
+
+            var ex = Record.Exception(() => PokeDataParsing.ParseCries(pokemon, out var legacy, out var latest));
+
+            Assert.Null(ex);
+            PokeDataParsing.ParseCries(pokemon, out var legacy2, out var latest2);
+            Assert.Equal("", legacy2);
+            Assert.Equal("", latest2);
+        }
+
+        [Fact]
+        public void ParseCries_LegacyFieldIsJsonNull_DoesNotThrow_LatestStillReads()
+        {
+            var pokemon = JObject.Parse(@"{ ""cries"": { ""legacy"": null, ""latest"": ""https://example.com/latest.ogg"" } }");
+
+            var ex = Record.Exception(() => PokeDataParsing.ParseCries(pokemon, out var legacy, out var latest));
+            Assert.Null(ex);
+
+            PokeDataParsing.ParseCries(pokemon, out var legacy2, out var latest2);
+            Assert.Equal("", legacy2);
+            Assert.Equal("https://example.com/latest.ogg", latest2);
+        }
+
+        [Fact]
+        public void SafeString_JsonNullAtIntermediateHop_DoesNotThrow_ReturnsEmpty()
+        {
+            // "habitat": null -- the exact shape PokeAPI returns for many legendary/mythical species
+            var species = JObject.Parse(@"{ ""habitat"": null, ""shape"": null, ""color"": { ""name"": ""green"" } }");
+
+            var ex = Record.Exception(() =>
+            {
+                PokeDataParsing.SafeString(species, "habitat", "name");
+                PokeDataParsing.SafeString(species, "shape", "name");
+            });
+
+            Assert.Null(ex);
+            Assert.Equal("", PokeDataParsing.SafeString(species, "habitat", "name"));
+            Assert.Equal("", PokeDataParsing.SafeString(species, "shape", "name"));
+            Assert.Equal("green", PokeDataParsing.SafeString(species, "color", "name"));
+        }
+
+        [Fact]
+        public void SafeString_EvolutionChainFieldIsJsonNull_DoesNotThrow()
+        {
+            var species = JObject.Parse(@"{ ""evolution_chain"": null }");
+
+            var ex = Record.Exception(() => PokeDataParsing.SafeString(species, "evolution_chain", "url"));
+
+            Assert.Null(ex);
+            Assert.Equal("", PokeDataParsing.SafeString(species, "evolution_chain", "url"));
+        }
+
+        [Fact]
+        public void SafeString_MissingIntermediateObject_DoesNotThrow()
+        {
+            var empty = JObject.Parse(@"{}");
+
+            var ex = Record.Exception(() => PokeDataParsing.SafeString(empty, "sprites", "other", "official-artwork", "front_default"));
+
+            Assert.Null(ex);
+            Assert.Equal("", PokeDataParsing.SafeString(empty, "sprites", "other", "official-artwork", "front_default"));
+        }
+
+        [Fact]
+        public void SafeString_NullToken_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.SafeString(null, "a", "b"));
+
+            Assert.Null(ex);
+            Assert.Equal("", PokeDataParsing.SafeString(null, "a", "b"));
+        }
+
+        [Fact]
+        public void SafeArray_JsonNullField_DoesNotThrow_ReturnsNull()
+        {
+            var type = JObject.Parse(@"{ ""damage_relations"": null }");
+
+            var ex = Record.Exception(() => PokeDataParsing.SafeArray(type, "damage_relations", "double_damage_to"));
+
+            Assert.Null(ex);
+            Assert.Null(PokeDataParsing.SafeArray(type, "damage_relations", "double_damage_to"));
+        }
     }
 }

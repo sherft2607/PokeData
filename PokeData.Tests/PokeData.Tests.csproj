@@ -6,7 +6,7 @@
     <!-- PokeDataParsing.cs is compiled shared with the main net48 target, which can't use `?`
          nullable-reference syntax (C# 7.3 default) — suppress the resulting warnings here instead
          of annotating the shared file. -->
-    <NoWarn>$(NoWarn);CS8600;CS8604;CS8625</NoWarn>
+    <NoWarn>$(NoWarn);CS8600;CS8603;CS8604;CS8625</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.*" />

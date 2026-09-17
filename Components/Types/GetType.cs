@@ -80,13 +80,12 @@ namespace PokeData
 
             if (parsed != null)
             {
-                var relations = parsed["damage_relations"];
-                FillNames(relations?["double_damage_to"] as JArray, doubleTo);
-                FillNames(relations?["double_damage_from"] as JArray, doubleFrom);
-                FillNames(relations?["half_damage_to"] as JArray, halfTo);
-                FillNames(relations?["half_damage_from"] as JArray, halfFrom);
-                FillNames(relations?["no_damage_to"] as JArray, noTo);
-                FillNames(relations?["no_damage_from"] as JArray, noFrom);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "double_damage_to"), doubleTo);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "double_damage_from"), doubleFrom);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "half_damage_to"), halfTo);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "half_damage_from"), halfFrom);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "no_damage_to"), noTo);
+                FillNames(PokeDataParsing.SafeArray(parsed, "damage_relations", "no_damage_from"), noFrom);
 
                 associatedPokemon.AddRange(PokeDataParsing.AssociatedPokemonNames(parsed["pokemon"] as JArray));
             }
@@ -107,7 +106,7 @@ namespace PokeData
         {
             if (array == null) return;
             foreach (var item in array)
-                into.Add((string)item["name"] ?? "");
+                into.Add(PokeDataParsing.SafeString(item, "name"));
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.PK_GetType;

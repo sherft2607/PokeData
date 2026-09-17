@@ -90,7 +90,7 @@ namespace PokeData
                 if (typesArray != null)
                 {
                     foreach (var t in typesArray)
-                        types.Add((string)t["type"]?["name"] ?? "");
+                        types.Add(PokeDataParsing.SafeString(t, "type", "name"));
                 }
 
                 height = (double?)parsed["height"] ?? 0;
@@ -99,8 +99,8 @@ namespace PokeData
 
                 PokeDataParsing.ParseStats(parsed["stats"] as JArray, statNames, statValues);
 
-                spriteFront = (string)parsed["sprites"]?["front_default"] ?? "";
-                spriteArtwork = (string)parsed["sprites"]?["other"]?["official-artwork"]?["front_default"] ?? "";
+                spriteFront = PokeDataParsing.SafeString(parsed, "sprites", "front_default");
+                spriteArtwork = PokeDataParsing.SafeString(parsed, "sprites", "other", "official-artwork", "front_default");
                 PokeDataParsing.ParseCries(parsed, out legacyCry, out latestCry);
             }
 

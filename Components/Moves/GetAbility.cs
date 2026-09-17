@@ -67,16 +67,16 @@ namespace PokeData
 
             if (parsed != null)
             {
-                generation = (string)parsed["generation"]?["name"] ?? "";
+                generation = PokeDataParsing.SafeString(parsed, "generation", "name");
 
                 var effectEntries = parsed["effect_entries"] as JArray;
                 if (effectEntries != null)
                 {
                     foreach (var entry in effectEntries)
                     {
-                        if ((string)entry["language"]?["name"] == "en")
+                        if (PokeDataParsing.SafeString(entry, "language", "name") == "en")
                         {
-                            effectText = (string)entry["effect"] ?? "";
+                            effectText = PokeDataParsing.SafeString(entry, "effect");
                             break;
                         }
                     }

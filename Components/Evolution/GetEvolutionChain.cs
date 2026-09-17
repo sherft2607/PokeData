@@ -63,7 +63,7 @@ namespace PokeData
             try
             {
                 var speciesParsed = JObject.Parse(speciesJson);
-                chainUrl = (string)speciesParsed["evolution_chain"]?["url"] ?? "";
+                chainUrl = PokeDataParsing.SafeString(speciesParsed, "evolution_chain", "url");
             }
             catch (JsonException)
             {

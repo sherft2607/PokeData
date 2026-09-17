@@ -79,12 +79,12 @@ namespace PokeData
 
             if (parsed != null)
             {
-                color = (string)parsed["color"]?["name"] ?? "";
-                shape = (string)parsed["shape"]?["name"] ?? "";
-                habitat = (string)parsed["habitat"]?["name"] ?? "";
+                color = PokeDataParsing.SafeString(parsed, "color", "name");
+                shape = PokeDataParsing.SafeString(parsed, "shape", "name");
+                habitat = PokeDataParsing.SafeString(parsed, "habitat", "name");
                 captureRate = (int?)parsed["capture_rate"] ?? 0;
                 baseHappiness = (int?)parsed["base_happiness"] ?? 0;
-                growthRate = (string)parsed["growth_rate"]?["name"] ?? "";
+                growthRate = PokeDataParsing.SafeString(parsed, "growth_rate", "name");
                 isLegendary = (bool?)parsed["is_legendary"] ?? false;
                 isMythical = (bool?)parsed["is_mythical"] ?? false;
 

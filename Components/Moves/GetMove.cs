@@ -75,17 +75,17 @@ namespace PokeData
                 power = (int?)parsed["power"] ?? 0;
                 accuracy = (int?)parsed["accuracy"] ?? 0;
                 pp = (int?)parsed["pp"] ?? 0;
-                damageClass = (string)parsed["damage_class"]?["name"] ?? "";
-                type = (string)parsed["type"]?["name"] ?? "";
+                damageClass = PokeDataParsing.SafeString(parsed, "damage_class", "name");
+                type = PokeDataParsing.SafeString(parsed, "type", "name");
 
                 var effectEntries = parsed["effect_entries"] as JArray;
                 if (effectEntries != null)
                 {
                     foreach (var entry in effectEntries)
                     {
-                        if ((string)entry["language"]?["name"] == "en")
+                        if (PokeDataParsing.SafeString(entry, "language", "name") == "en")
                         {
-                            effectText = (string)entry["effect"] ?? "";
+                            effectText = PokeDataParsing.SafeString(entry, "effect");
                             break;
                         }
                     }

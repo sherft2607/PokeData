@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace PokeData
 {
-    // Pure parsing/flattening logic shared by GetTypeMatrixComponent and GetEvolutionChainComponent.
+    // Pure parsing/flattening logic shared by every component that talks to PokeAPI.
     // No Grasshopper/RhinoCommon references, so this file can be compiled directly into the
     // plain net8.0 test project and exercised without a live API call or a GH runtime.
     // No nullable annotations here — this file also compiles under net48 (C# 7.3 default), which
@@ -11,13 +11,56 @@ namespace PokeData
     // CS86xx warnings instead (see PokeData.Tests.csproj).
     public static class PokeDataParsing
     {
+        #region Safe JSON navigation
+
+        // A plain `token["key"]` indexer throws InvalidOperationException ("Cannot access child
+        // value on Newtonsoft.Json.Linq.JValue") when `token` is a leaf value — which includes a
+        // field whose JSON value is literally `null` (that deserializes to a JValue with
+        // Type == Null, not a C# null reference, so `?.`/`?[]` alone does not guard it). Every
+        // multi-hop lookup in this file and every component goes through these helpers instead of
+        // a raw indexer chain.
+
+        // item — descends one property, but only if token is actually a JObject; never throws
+        public static JToken SafeChild(JToken token, string key)
+        {
+            var obj = token as JObject;
+            return obj?[key];
+        }
+
+        // record — descends a chain of property names, stopping (returning null) at the first
+        // hop that isn't a JObject (including a JSON-null-valued field)
+        public static JToken SafePath(JToken token, params string[] path)
+        {
+            JToken current = token;
+            foreach (var key in path)
+                current = SafeChild(current, key);
+            return current;
+        }
+
+        // item — string at the end of a safe path; JSON null or a missing/wrong-shape hop -> ""
+        public static string SafeString(JToken token, params string[] path)
+        {
+            var result = SafePath(token, path);
+            if (result == null || result.Type == JTokenType.Null) return "";
+            return result.Type == JTokenType.String ? (string)result : result.ToString();
+        }
+
+        // item — array at the end of a safe path; null/wrong-shape -> null (callers already
+        // treat a null JArray as "nothing to iterate")
+        public static JArray SafeArray(JToken token, params string[] path)
+        {
+            return SafePath(token, path) as JArray;
+        }
+
+        #endregion
+
         // item
         public static HashSet<string> NamesOf(JArray array)
         {
             var set = new HashSet<string>();
             if (array == null) return set;
             foreach (var item in array)
-                set.Add((string)item["name"] ?? "");
+                set.Add(SafeString(item, "name"));
             return set;
         }
 
@@ -39,10 +82,9 @@ namespace PokeData
             List<string> defending,
             List<double> multiplier)
         {
-            var relations = parsedType?["damage_relations"];
-            var doubleTo = NamesOf(relations?["double_damage_to"] as JArray);
-            var halfTo = NamesOf(relations?["half_damage_to"] as JArray);
-            var noTo = NamesOf(relations?["no_damage_to"] as JArray);
+            var doubleTo = NamesOf(SafeArray(parsedType, "damage_relations", "double_damage_to"));
+            var halfTo = NamesOf(SafeArray(parsedType, "damage_relations", "half_damage_to"));
+            var noTo = NamesOf(SafeArray(parsedType, "damage_relations", "no_damage_to"));
 
             foreach (var defendingType in allTypeNames)
             {
@@ -58,7 +100,7 @@ namespace PokeData
             var list = new List<string>();
             if (array == null) return list;
             foreach (var item in array)
-                list.Add((string)item["name"] ?? "");
+                list.Add(SafeString(item, "name"));
             return list;
         }
 
@@ -68,18 +110,16 @@ namespace PokeData
             var list = new List<string>();
             if (pokemonArray == null) return list;
             foreach (var p in pokemonArray)
-                list.Add((string)p["pokemon"]?["name"] ?? "");
+                list.Add(SafeString(p, "pokemon", "name"));
             return list;
         }
 
-        // item — extract a pokemon response's two cry audio URLs
+        // item — extract a pokemon response's two cry audio URLs; "cries" itself, or either
+        // sub-field, may be JSON null on some entries (observed on live Gen 6+ lookups)
         public static void ParseCries(JObject parsedPokemon, out string legacyCryUrl, out string latestCryUrl)
         {
-            legacyCryUrl = "";
-            latestCryUrl = "";
-            if (parsedPokemon == null) return;
-            legacyCryUrl = (string)parsedPokemon["cries"]?["legacy"] ?? "";
-            latestCryUrl = (string)parsedPokemon["cries"]?["latest"] ?? "";
+            legacyCryUrl = SafeString(parsedPokemon, "cries", "legacy");
+            latestCryUrl = SafeString(parsedPokemon, "cries", "latest");
         }
 
         // record — pairs a pokemon's "stats" array into parallel name/value lists, in API order
@@ -88,8 +128,9 @@ namespace PokeData
             if (statsArray == null) return;
             foreach (var s in statsArray)
             {
-                names.Add((string)s["stat"]?["name"] ?? "");
-                values.Add((int?)s["base_stat"] ?? 0);
+                names.Add(SafeString(s, "stat", "name"));
+                var baseStat = SafeChild(s, "base_stat");
+                values.Add(baseStat != null && baseStat.Type != JTokenType.Null ? (int)baseStat : 0);
             }
         }
 
@@ -98,8 +139,8 @@ namespace PokeData
         {
             if (node == null) return;
 
-            string parentName = (string)node["species"]?["name"] ?? "";
-            var evolvesTo = node["evolves_to"] as JArray;
+            string parentName = SafeString(node, "species", "name");
+            var evolvesTo = SafeArray(node, "evolves_to");
             if (evolvesTo == null) return;
 
             foreach (var childNode in evolvesTo)
@@ -107,11 +148,11 @@ namespace PokeData
                 var childObj = childNode as JObject;
                 if (childObj == null) continue;
 
-                string childName = (string)childObj["species"]?["name"] ?? "";
+                string childName = SafeString(childObj, "species", "name");
                 string trigger = "";
-                var details = childObj["evolution_details"] as JArray;
+                var details = SafeArray(childObj, "evolution_details");
                 if (details != null && details.Count > 0)
-                    trigger = (string)details[0]["trigger"]?["name"] ?? "";
+                    trigger = SafeString(details[0], "trigger", "name");
 
                 parents.Add(parentName);
                 children.Add(childName);
