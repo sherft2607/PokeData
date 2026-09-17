@@ -151,11 +151,26 @@ jobs:
       contents: write
 
     steps:
+      # gh needs a git checkout (or an explicit --repo) to resolve which repository to act on —
+      # without one it has nothing to infer the target from.
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download dist/ artifact
         uses: actions/download-artifact@v4
         with:
           name: release-assets
           path: dist
+
+      - name: Verify downloaded assets
+        run: |
+          echo "Restling — dist/ contents after artifact download:"
+          ls -la dist/
+          count=$(ls dist/*.zip dist/*.yak 2>/dev/null | wc -l)
+          if [ "$count" -ne 6 ]; then
+            echo "::error::Expected 6 release assets (3 .yak + 3 .zip), found $count"
+            exit 1
+          fi
 
       # softprops/action-gh-release@v2 hit "Error creating asset temp dir" on both Windows and
       # Linux runners when a stale draft/release already existed for this tag (left over from a
@@ -166,7 +181,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete "${{ github.ref_name }}" --yes || true
+          gh release delete "${{ github.ref_name }}" --yes --repo "${{ github.repository }}" || true
           gh release create "${{ github.ref_name }}" dist/*.zip dist/*.yak \
+            --repo "${{ github.repository }}" \
             --title "PokeData ${{ needs.build.outputs.version }}" \
             --generate-notes
+          echo "Restling — release created:"
+          gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}"
