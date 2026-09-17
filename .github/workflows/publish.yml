@@ -157,13 +157,16 @@ jobs:
           name: release-assets
           path: dist
 
+      # softprops/action-gh-release@v2 hit "Error creating asset temp dir" on both Windows and
+      # Linux runners when a stale draft/release already existed for this tag (left over from a
+      # failed prior attempt) — its delete-then-reupload reconciliation path is flaky under that
+      # condition. gh (preinstalled on GitHub-hosted runners) uploads sequentially and has no such
+      # issue; deleting any leftover release for this tag first guarantees a clean create.
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.zip
-            dist/*.yak
-          generate_release_notes: true
-          name: "PokeData ${{ needs.build.outputs.version }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete "${{ github.ref_name }}" --yes || true
+          gh release create "${{ github.ref_name }}" dist/*.zip dist/*.yak \
+            --title "PokeData ${{ needs.build.outputs.version }}" \
+            --generate-notes
