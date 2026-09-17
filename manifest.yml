@@ -1,0 +1,13 @@
+name: pokedata
+version: 1.0.0
+authors:
+  - Shandon Herft
+description: "Look up Pokemon, types, evolution chains, moves and abilities from PokeAPI directly on the Grasshopper canvas."
+url: https://github.com/sherft2607/PokeData
+keywords:
+  - grasshopper
+  - rhino
+  - pokeapi
+  - rest
+  - api
+icon: PokeDataLogo.png
