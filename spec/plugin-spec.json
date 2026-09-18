@@ -99,6 +99,41 @@
             { "name": "Bitmap", "nickname": "B", "type": "generic", "access": "item" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
           ]
+        },
+        {
+          "class_name": "PokemonCryComponent",
+          "file_name": "PokemonCry.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "pokemon_read",
+          "workflow": "v2.0.0: audio cries — hear a Pokemon's cry alongside its other data",
+          "note": "Reuses pokemon_read (same endpoint as Get Pokemon) to read the cries.legacy/cries.latest URLs, then on trigger streams the audio bytes in-memory via PokeDataClient.GetImageBytesAsync and hands off to the OS default player through a transient temp file (no in-process .ogg decoder shipped).",
+          "inputs": [
+            { "name": "Pokemon Name Or ID", "nickname": "P", "type": "string", "access": "item", "default": "" },
+            { "name": "Play", "nickname": "PL", "type": "boolean", "access": "item", "default": false }
+          ],
+          "outputs": [
+            { "name": "Legacy Cry URL", "nickname": "LC", "type": "string", "access": "item" },
+            { "name": "Latest Cry URL", "nickname": "LT", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "BatchDownloaderComponent",
+          "file_name": "BatchDownloader.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: batch async image downloads — sprite/artwork URLs for many Pokemon at once",
+          "note": "Not a PokeAPI endpoint — Task.WhenAll over the same PokeDataClient.GetImageBytesAsync helper Sprite Downloader uses (in-memory bytes, no disk locks), decoded per-URL to a Bitmap. Gated by Trigger so the URL list doesn't refetch on every solve.",
+          "inputs": [
+            { "name": "URLs", "nickname": "U", "type": "string", "access": "list", "default": "" },
+            { "name": "Trigger", "nickname": "T", "type": "boolean", "access": "item", "default": false }
+          ],
+          "outputs": [
+            { "name": "Bitmaps", "nickname": "B", "type": "generic", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
         }
       ]
     },
@@ -125,7 +160,27 @@
             { "name": "No Damage From", "nickname": "NF", "type": "string", "access": "list" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
             { "name": "Response", "nickname": "R", "type": "string", "access": "item" },
-            { "name": "Associated Pokemon", "nickname": "AP", "type": "string", "access": "list", "note": "extend-round-1: appended at the end, existing output indices unchanged" }
+            { "name": "Associated Pokemon", "nickname": "AP", "type": "string", "access": "list", "note": "extend-round-1: appended at the end, existing output indices unchanged" },
+            { "name": "Color", "nickname": "CO", "type": "colour", "access": "item", "note": "v2.0.0: appended at the end, existing output indices unchanged. Canonical elemental-type color (System.Drawing.Color via PluginUtilities.TypeColor) for viewport display pipelines." }
+          ]
+        },
+        {
+          "class_name": "TypeMatchupComponent",
+          "file_name": "TypeMatchup.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "type_read",
+          "workflow": "v2.0.0: type matchups — what should I use against type X",
+          "note": "Reuses type_read (same endpoint as Get Type); no new extraction/testing needed. Outputs only the outgoing (attacking) damage relations, split into 3 structured lists, as a focused counterpart to Get Type's full to/from set.",
+          "inputs": [
+            { "name": "Attacking Type", "nickname": "AT", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "2x Damage To", "nickname": "DD", "type": "string", "access": "list" },
+            { "name": "0.5x Damage To", "nickname": "HD", "type": "string", "access": "list" },
+            { "name": "0x Damage To", "nickname": "ND", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
           ]
         },
         {
@@ -141,6 +196,29 @@
             { "name": "Attacking Type", "nickname": "AT", "type": "string", "access": "list" },
             { "name": "Defending Type", "nickname": "DT", "type": "string", "access": "list" },
             { "name": "Multiplier", "nickname": "M", "type": "number", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "DualTypeMatchupComponent",
+          "file_name": "DualTypeMatchup.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "type_read",
+          "workflow": "v2.1.0: dual-type defense — the real damage multiplier a two-type Pokemon takes, not just one type's own relations",
+          "note": "Calls type_read once or twice (Type 2 optional) and multiplies each type's independent defensive multiplier per attacking type (PokeDataParsing.ComputeDualTypeDefense), bucketing into 4x/2x/1x/0.5x/0.25x/0x. No new extraction — reuses type_read.",
+          "inputs": [
+            { "name": "Type 1", "nickname": "T1", "type": "string", "access": "item", "default": "" },
+            { "name": "Type 2", "nickname": "T2", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "4x Damage From", "nickname": "X4", "type": "string", "access": "list" },
+            { "name": "2x Damage From", "nickname": "X2", "type": "string", "access": "list" },
+            { "name": "1x Damage From", "nickname": "X1", "type": "string", "access": "list" },
+            { "name": "0.5x Damage From", "nickname": "H2", "type": "string", "access": "list" },
+            { "name": "0.25x Damage From", "nickname": "H4", "type": "string", "access": "list" },
+            { "name": "0x Damage From", "nickname": "X0", "type": "string", "access": "list" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
             { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
           ]
@@ -194,7 +272,9 @@
             { "name": "Type", "nickname": "T", "type": "string", "access": "item" },
             { "name": "Effect Text", "nickname": "E", "type": "string", "access": "item" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
-            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" },
+            { "name": "Priority", "nickname": "PR", "type": "integer", "access": "item", "note": "v2.0.0: appended at the end, existing output indices unchanged" },
+            { "name": "Description", "nickname": "D", "type": "string", "access": "list", "note": "v2.0.0: appended at the end, existing output indices unchanged. One flavor_text_entries description per distinct language." }
           ]
         },
         {
@@ -211,7 +291,229 @@
             { "name": "Generation", "nickname": "G", "type": "string", "access": "item" },
             { "name": "Effect Text", "nickname": "E", "type": "string", "access": "item" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" },
+            { "name": "Short Effect", "nickname": "SE", "type": "string", "access": "list", "note": "v2.0.0: appended at the end, existing output indices unchanged. One effect_entries short_effect per distinct language." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "type": "http",
+      "components": [
+        {
+          "class_name": "GetItemComponent",
+          "file_name": "GetItem.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "item_read",
+          "workflow": "v2.1.0: item lookup — category, cost, fling power, effect text, sprite for team/bag-planning tools",
+          "inputs": [
+            { "name": "Item Name Or ID", "nickname": "I", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Category", "nickname": "C", "type": "string", "access": "item" },
+            { "name": "Cost", "nickname": "CO", "type": "integer", "access": "item" },
+            { "name": "Fling Power", "nickname": "FP", "type": "integer", "access": "item" },
+            { "name": "Effect Text", "nickname": "E", "type": "string", "access": "item" },
+            { "name": "Sprite URL", "nickname": "SP", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
             { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "type": "http",
+      "components": [
+        {
+          "class_name": "GetNatureComponent",
+          "file_name": "GetNature.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "nature_read",
+          "workflow": "v2.1.0: nature lookup — +10%/-10% stat modifiers and berry-flavor preferences for breeding/EV-planning tools",
+          "note": "increased_stat/decreased_stat/likes_flavor/hates_flavor are JSON null for neutral natures (e.g. hardy) — SafeString returns \"\" rather than erroring.",
+          "inputs": [
+            { "name": "Nature Name Or ID", "nickname": "N", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Increased Stat", "nickname": "IS", "type": "string", "access": "item" },
+            { "name": "Decreased Stat", "nickname": "DS", "type": "string", "access": "item" },
+            { "name": "Liked Flavor", "nickname": "LF", "type": "string", "access": "item" },
+            { "name": "Disliked Flavor", "nickname": "DF", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data",
+      "type": "http",
+      "components": [
+        {
+          "class_name": "GetGenerationComponent",
+          "file_name": "GetGeneration.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "generation_read",
+          "workflow": "v2.1.0: generation roster — every species ID/name introduced in a given generation, for generation-scoped tools",
+          "inputs": [
+            { "name": "Generation", "nickname": "G", "type": "integer", "access": "item", "default": 1 }
+          ],
+          "outputs": [
+            { "name": "Species IDs", "nickname": "SI", "type": "integer", "access": "list" },
+            { "name": "Species Names", "nickname": "SN", "type": "string", "access": "list" },
+            { "name": "Region", "nickname": "R", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "RS", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "PokemonFilterComponent",
+          "file_name": "PokemonFilter.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: filtering a Pokedex-scale list down to matches (e.g. stat total in range) without hand-wiring native GH list filters",
+          "note": "Not a PokeAPI endpoint — pure list filtering (PokeDataParsing.FilterByRule) over two parallel lists the user already has on the canvas (e.g. Get Pokemon Batch's names + a computed stat total); Filter Rule is one of GreaterThan/LessThan/Between/Equals.",
+          "inputs": [
+            { "name": "Names", "nickname": "N", "type": "string", "access": "list", "default": "" },
+            { "name": "Values", "nickname": "V", "type": "number", "access": "list", "default": "" },
+            { "name": "Filter Rule", "nickname": "FR", "type": "string", "access": "item", "default": "Between" },
+            { "name": "Min", "nickname": "MN", "type": "number", "access": "item", "default": 0.0 },
+            { "name": "Max", "nickname": "MX", "type": "number", "access": "item", "default": 999999.0 }
+          ],
+          "outputs": [
+            { "name": "Filtered Names", "nickname": "FN", "type": "string", "access": "list" },
+            { "name": "Filtered Values", "nickname": "FV", "type": "number", "access": "list" },
+            { "name": "Match Indices", "nickname": "MI", "type": "integer", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geometry",
+      "type": "util",
+      "components": [
+        {
+          "class_name": "PokemonDimensionsComponent",
+          "file_name": "PokemonDimensions.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: real-world scale reference — turning PokeAPI's raw decimetre/hectogram fields into a placeable Box",
+          "note": "Not a PokeAPI endpoint — pure unit conversion (PokeDataParsing.ConvertDimensions) plus a Rhino Box sized to the converted height, footprint proportional to height.",
+          "inputs": [
+            { "name": "Height", "nickname": "H", "type": "number", "access": "item", "default": 0.0 },
+            { "name": "Weight", "nickname": "W", "type": "number", "access": "item", "default": 0.0 },
+            { "name": "Plane", "nickname": "PL", "type": "plane", "access": "item", "default": "WorldXY" }
+          ],
+          "outputs": [
+            { "name": "Height (m)", "nickname": "HM", "type": "number", "access": "item" },
+            { "name": "Height (ft)", "nickname": "HF", "type": "number", "access": "item" },
+            { "name": "Weight (kg)", "nickname": "WK", "type": "number", "access": "item" },
+            { "name": "Weight (lb)", "nickname": "WL", "type": "number", "access": "item" },
+            { "name": "Reference Box", "nickname": "BX", "type": "box", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Visualization",
+      "type": "util",
+      "components": [
+        {
+          "class_name": "StatRadarComponent",
+          "file_name": "StatRadar.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.0.0: parametric stat radar/spider chart geometry driver",
+          "note": "Not a PokeAPI endpoint — pure canvas geometry. Normalizes Get Pokemon's Stat Values output onto a 2D radar polygon (PokeDataParsing.ComputeStatRadarPoints, testable without RhinoCommon) and returns Rhino points + a closed polyline curve.",
+          "inputs": [
+            { "name": "Stat Values", "nickname": "SV", "type": "integer", "access": "list", "default": "" },
+            { "name": "Radius", "nickname": "R", "type": "number", "access": "item", "default": 10.0 },
+            { "name": "Max Stat", "nickname": "MX", "type": "number", "access": "item", "default": 255.0 },
+            { "name": "Center", "nickname": "C", "type": "point", "access": "item", "default": "origin" }
+          ],
+          "outputs": [
+            { "name": "Radar Points", "nickname": "RP", "type": "point", "access": "list" },
+            { "name": "Radar Polyline", "nickname": "RPL", "type": "curve", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "StatMesh3DComponent",
+          "file_name": "StatMesh3D.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: 3D counterpart to Stat Radar — an extruded radar 'skyline' Mesh for a solid stat-comparison object instead of a flat polyline",
+          "note": "Not a PokeAPI endpoint — pure canvas geometry. Fixed-radius base ring (PokeDataParsing.ComputeRegularPolygonPoints) extruded per-vertex by a stat-driven height (PokeDataParsing.ComputeStatMeshHeights); side walls + bottom/top fan caps.",
+          "inputs": [
+            { "name": "Stat Values", "nickname": "SV", "type": "integer", "access": "list", "default": "" },
+            { "name": "Height Factor", "nickname": "HF", "type": "number", "access": "item", "default": 1.0 },
+            { "name": "Radius", "nickname": "R", "type": "number", "access": "item", "default": 10.0 },
+            { "name": "Max Stat", "nickname": "MX", "type": "number", "access": "item", "default": 255.0 },
+            { "name": "Center", "nickname": "C", "type": "point", "access": "item", "default": "origin" }
+          ],
+          "outputs": [
+            { "name": "Mesh", "nickname": "M", "type": "mesh", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Display",
+      "type": "util",
+      "components": [
+        {
+          "class_name": "TypePaletteComponent",
+          "file_name": "TypePalette.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: dual-type color swatches for viewport display pipelines, alongside Get Type's single-type Color output",
+          "note": "Not a PokeAPI endpoint — pure lookup/blend over PluginUtilities.TypeColor (PluginUtilities.BlendColors for the dual-type average).",
+          "inputs": [
+            { "name": "Type 1", "nickname": "T1", "type": "string", "access": "item", "default": "" },
+            { "name": "Type 2", "nickname": "T2", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Color 1", "nickname": "C1", "type": "colour", "access": "item" },
+            { "name": "Color 2", "nickname": "C2", "type": "colour", "access": "item" },
+            { "name": "Blend Color", "nickname": "CB", "type": "colour", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "CanvasSpriteCardComponent",
+          "file_name": "CanvasSpriteCard.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v2.1.0: viewport 'trading card' layout for a Pokemon's sprite + name + stats",
+          "note": "Not a PokeAPI endpoint — pure canvas layout. Builds a flat rectangular card Mesh (backing only, no baked texture — a Bitmap can't be baked onto mesh faces without a display conduit) plus a Plane and joined label string (PokeDataParsing.BuildCardLabel) for native GH Picture Frame / Text Tag 3D to consume; the input Bitmap is passed through unchanged.",
+          "inputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item", "default": "" },
+            { "name": "Stats", "nickname": "ST", "type": "string", "access": "list", "default": "" },
+            { "name": "Sprite Bitmap", "nickname": "B", "type": "generic", "access": "item", "optional": true },
+            { "name": "Point", "nickname": "P", "type": "point", "access": "item", "default": "origin" },
+            { "name": "Width", "nickname": "W", "type": "number", "access": "item", "default": 10.0 },
+            { "name": "Height", "nickname": "H", "type": "number", "access": "item", "default": 14.0 }
+          ],
+          "outputs": [
+            { "name": "Card Mesh", "nickname": "CM", "type": "mesh", "access": "item" },
+            { "name": "Label", "nickname": "L", "type": "string", "access": "item" },
+            { "name": "Card Plane", "nickname": "CP", "type": "plane", "access": "item" },
+            { "name": "Sprite Bitmap", "nickname": "B", "type": "generic", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
           ]
         }
       ]
@@ -254,6 +556,6 @@
   "payload_contracts": [],
   "aec_features": [],
   "skipped_for_v1": [
-    { "resource": "berry, berry-firmness, berry-flavor, contest-type, contest-effect, super-contest-effect, encounter-method, encounter-condition, encounter-condition-value, evolution-trigger, gender, generation, pokedex, version, version-group, item-attribute, item-category, item-fling-effect, item-pocket, item, location, location-area, pal-park-area, region, machine, move-ailment, move-battle-style, move-category, move-damage-class, move-learn-method, move-target, characteristic, egg-group, growth-rate, pokeathlon-stat, pokemon-color, pokemon-form, pokemon-habitat, pokemon-shape, stat", "reason": "not used by any of the 5 confirmed workflows — PokeAPI has 48 resources total; only pokemon, type, pokemon-species/evolution-chain, move, and ability trace to a stated workflow. All are available via the same uniform pattern (list + detail by name/id) so can be added later with /rest-add-feature if a workflow needs them." }
+    { "resource": "berry, berry-firmness, berry-flavor, contest-type, contest-effect, super-contest-effect, encounter-method, encounter-condition, encounter-condition-value, evolution-trigger, gender, pokedex, version, version-group, item-attribute, item-category, item-fling-effect, item-pocket, location, location-area, pal-park-area, region, machine, move-ailment, move-battle-style, move-category, move-damage-class, move-learn-method, move-target, characteristic, egg-group, growth-rate, pokeathlon-stat, pokemon-color, pokemon-form, pokemon-habitat, pokemon-shape, stat", "reason": "not used by any confirmed workflow through v2.1.0 — PokeAPI has 48 resources total; pokemon, type, pokemon-species/evolution-chain, move, ability, generation, item, and nature now trace to a stated workflow (v2.1.0 added generation/item/nature). The rest are available via the same uniform pattern (list + detail by name/id) so can be added later with /rest-add-feature if a workflow needs them." }
   ]
 }

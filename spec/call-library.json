@@ -178,5 +178,68 @@
     "example_response": {},
     "notes": "",
     "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "generation_read",
+    "component": "GetGenerationComponent",
+    "method": "GET",
+    "url_template": "/api/v2/generation/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "item_read",
+    "component": "GetItemComponent",
+    "method": "GET",
+    "url_template": "/api/v2/item/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0 — flavor_text_entries uses \"text\" not \"flavor_text\" (unlike move/ability); \"cost\" field observed absent on live responses, parsed null-safe to 0",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "nature_read",
+    "component": "GetNatureComponent",
+    "method": "GET",
+    "url_template": "/api/v2/nature/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0 — increased_stat/decreased_stat/likes_flavor/hates_flavor are JSON null for neutral natures (e.g. hardy)",
+    "status": "EXTRACTED"
   }
 ]

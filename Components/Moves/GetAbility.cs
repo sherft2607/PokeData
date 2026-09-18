@@ -26,6 +26,8 @@ namespace PokeData
             pManager.AddTextParameter("Effect Text", "E", "Short English effect description.", GH_ParamAccess.item);
             pManager.AddTextParameter("Status", "S", "Success or error status.", GH_ParamAccess.item);
             pManager.AddTextParameter("Response", "R", "Raw JSON response.", GH_ParamAccess.item);
+            // v2.0.0: appended at the end so existing output indices (0-3) are unchanged
+            pManager.AddTextParameter("Short Effect", "SE", "One short effect description per available language.", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -64,6 +66,7 @@ namespace PokeData
             }
 
             string generation = "", effectText = "";
+            var shortEffects = new System.Collections.Generic.List<string>();
 
             if (parsed != null)
             {
@@ -81,6 +84,8 @@ namespace PokeData
                         }
                     }
                 }
+
+                PokeDataParsing.ParseLocalizedEntries(effectEntries, "short_effect", out _, out shortEffects);
             }
 
             // 5. DA.SetData calls
@@ -88,6 +93,7 @@ namespace PokeData
             DA.SetData(1, effectText);
             DA.SetData(2, "OK");
             DA.SetData(3, json);
+            DA.SetDataList(4, shortEffects);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.PK_GetAbility;

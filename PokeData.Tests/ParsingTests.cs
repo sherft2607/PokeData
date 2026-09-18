@@ -370,5 +370,461 @@ namespace PokeData.Tests
             Assert.Null(ex);
             Assert.Null(PokeDataParsing.SafeArray(type, "damage_relations", "double_damage_to"));
         }
+
+        // --- v2.0.0: ParseLocalizedEntries -------------------------------------------------------
+
+        [Fact]
+        public void ParseLocalizedEntries_OneEntryPerLanguage_ReadsAll()
+        {
+            var entries = JArray.Parse(@"[
+                { ""effect"": ""Raises Attack."", ""language"": { ""name"": ""en"" } },
+                { ""effect"": ""Sube Ataque."", ""language"": { ""name"": ""es"" } }
+            ]");
+
+            PokeDataParsing.ParseLocalizedEntries(entries, "effect", out var languages, out var texts);
+
+            Assert.Equal(new[] { "en", "es" }, languages);
+            Assert.Equal(new[] { "Raises Attack.", "Sube Ataque." }, texts);
+        }
+
+        [Fact]
+        public void ParseLocalizedEntries_DuplicateLanguage_KeepsFirstOnly()
+        {
+            // flavor_text_entries repeats a language once per version_group
+            var entries = JArray.Parse(@"[
+                { ""flavor_text"": ""Version A text."", ""language"": { ""name"": ""en"" } },
+                { ""flavor_text"": ""Version B text."", ""language"": { ""name"": ""en"" } }
+            ]");
+
+            PokeDataParsing.ParseLocalizedEntries(entries, "flavor_text", out var languages, out var texts);
+
+            Assert.Equal(new[] { "en" }, languages);
+            Assert.Equal(new[] { "Version A text." }, texts);
+        }
+
+        [Fact]
+        public void ParseLocalizedEntries_NullArray_ReturnsEmptyLists_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ParseLocalizedEntries(null, "effect", out var languages, out var texts));
+
+            Assert.Null(ex);
+            PokeDataParsing.ParseLocalizedEntries(null, "effect", out var languages2, out var texts2);
+            Assert.Empty(languages2);
+            Assert.Empty(texts2);
+        }
+
+        [Fact]
+        public void ParseLocalizedEntries_MissingLanguage_SkipsEntry()
+        {
+            var entries = JArray.Parse(@"[{ ""effect"": ""No language here."" }]");
+
+            PokeDataParsing.ParseLocalizedEntries(entries, "effect", out var languages, out var texts);
+
+            Assert.Empty(languages);
+            Assert.Empty(texts);
+        }
+
+        // --- v2.0.0: ComputeStatRadarPoints -------------------------------------------------------
+
+        [Fact]
+        public void ComputeStatRadarPoints_SixStats_ProducesSixPoints()
+        {
+            var stats = new List<int> { 35, 55, 40, 50, 50, 90 };
+
+            PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 255.0, out var x, out var y);
+
+            Assert.Equal(6, x.Count);
+            Assert.Equal(6, y.Count);
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_MaxStatValue_ReachesFullRadius()
+        {
+            var stats = new List<int> { 255 };
+
+            PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 255.0, out var x, out var y);
+
+            double distance = System.Math.Sqrt(x[0] * x[0] + y[0] * y[0]);
+            Assert.Equal(10.0, distance, 3);
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_ZeroStat_ProducesOriginPoint()
+        {
+            var stats = new List<int> { 0, 0, 0 };
+
+            PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 255.0, out var x, out var y);
+
+            Assert.All(x, v => Assert.Equal(0.0, v, 3));
+            Assert.All(y, v => Assert.Equal(0.0, v, 3));
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_ValueAboveMax_IsClampedToRadius()
+        {
+            var stats = new List<int> { 999 };
+
+            PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 255.0, out var x, out var y);
+
+            double distance = System.Math.Sqrt(x[0] * x[0] + y[0] * y[0]);
+            Assert.Equal(10.0, distance, 3);
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_EmptyList_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeStatRadarPoints(new List<int>(), 10.0, 255.0, out var x, out var y));
+
+            Assert.Null(ex);
+            PokeDataParsing.ComputeStatRadarPoints(new List<int>(), 10.0, 255.0, out var x2, out var y2);
+            Assert.Empty(x2);
+            Assert.Empty(y2);
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_NullList_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeStatRadarPoints(null, 10.0, 255.0, out var x, out var y));
+
+            Assert.Null(ex);
+        }
+
+        [Fact]
+        public void ComputeStatRadarPoints_ZeroMaxStat_ReturnsEmpty_DoesNotThrow()
+        {
+            var stats = new List<int> { 50, 50, 50 };
+
+            var ex = Record.Exception(() => PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 0.0, out var x, out var y));
+
+            Assert.Null(ex);
+            PokeDataParsing.ComputeStatRadarPoints(stats, 10.0, 0.0, out var x2, out var y2);
+            Assert.Empty(x2);
+        }
+
+        // --- v2.1.0: ExtractIdFromUrl / ExtractIdsFromUrls --------------------------------------
+
+        [Theory]
+        [InlineData("https://pokeapi.co/api/v2/pokemon-species/1/", 1)]
+        [InlineData("https://pokeapi.co/api/v2/pokemon-species/25/", 25)]
+        [InlineData("https://pokeapi.co/api/v2/region/1", 1)]
+        public void ExtractIdFromUrl_ParsesTrailingNumericSegment(string url, int expected)
+        {
+            Assert.Equal(expected, PokeDataParsing.ExtractIdFromUrl(url));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("not-a-url")]
+        [InlineData("https://pokeapi.co/api/v2/type/fire/")]
+        public void ExtractIdFromUrl_Malformed_ReturnsZero_DoesNotThrow(string url)
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ExtractIdFromUrl(url));
+            Assert.Null(ex);
+            Assert.Equal(0, PokeDataParsing.ExtractIdFromUrl(url));
+        }
+
+        [Fact]
+        public void ExtractIdsFromUrls_ReadsEachEntryInOrder()
+        {
+            var array = JArray.Parse(@"[
+                { ""name"": ""bulbasaur"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/1/"" },
+                { ""name"": ""ivysaur"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/2/"" }
+            ]");
+
+            var result = PokeDataParsing.ExtractIdsFromUrls(array);
+
+            Assert.Equal(new[] { 1, 2 }, result);
+        }
+
+        [Fact]
+        public void ExtractIdsFromUrls_NullArray_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ExtractIdsFromUrls(null));
+            Assert.Null(ex);
+            Assert.Empty(PokeDataParsing.ExtractIdsFromUrls(null));
+        }
+
+        // --- v2.1.0: ComputeDualTypeDefense ------------------------------------------------------
+
+        private static readonly string[] AllTypesV2 = new[]
+        {
+            "normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison",
+            "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"
+        };
+
+        [Fact]
+        public void ComputeDualTypeDefense_SingleType_MatchesPlainMultiplier()
+        {
+            // fire alone: takes double from water/ground/rock, half from fire/grass/ice/bug/steel/fairy
+            var doubleFrom1 = new HashSet<string> { "water", "ground", "rock" };
+            var halfFrom1 = new HashSet<string> { "fire", "grass", "ice", "bug", "steel", "fairy" };
+            var noFrom1 = new HashSet<string>();
+
+            var x4 = new List<string>(); var x2 = new List<string>(); var x1 = new List<string>();
+            var h2 = new List<string>(); var h4 = new List<string>(); var x0 = new List<string>();
+
+            PokeDataParsing.ComputeDualTypeDefense(doubleFrom1, halfFrom1, noFrom1, null, null, null, AllTypesV2, x4, x2, x1, h2, h4, x0);
+
+            Assert.Contains("water", x2);
+            Assert.Contains("fire", h2);
+            Assert.Contains("normal", x1);
+            Assert.Empty(x4);
+            Assert.Empty(h4);
+            Assert.Empty(x0);
+        }
+
+        [Fact]
+        public void ComputeDualTypeDefense_DualType_MultipliesBothTypes()
+        {
+            // fire/flying (charizard-style): grass 2x from fire, and flying is neutral to grass ->
+            // combined grass = 2x. Ice: fire takes 0.5x from ice, flying takes 2x from ice -> combined = 1x.
+            // rock: fire takes 2x from rock, flying takes 2x from rock -> combined 4x.
+            var doubleFrom1 = new HashSet<string> { "water", "ground", "rock" }; // fire
+            var halfFrom1 = new HashSet<string> { "fire", "grass", "ice", "bug", "steel", "fairy" };
+            var noFrom1 = new HashSet<string>();
+
+            var doubleFrom2 = new HashSet<string> { "rock", "electric", "ice" }; // flying
+            var halfFrom2 = new HashSet<string> { "fighting", "bug", "grass" };
+            var noFrom2 = new HashSet<string> { "ground" };
+
+            var x4 = new List<string>(); var x2 = new List<string>(); var x1 = new List<string>();
+            var h2 = new List<string>(); var h4 = new List<string>(); var x0 = new List<string>();
+
+            PokeDataParsing.ComputeDualTypeDefense(doubleFrom1, halfFrom1, noFrom1, doubleFrom2, halfFrom2, noFrom2, AllTypesV2, x4, x2, x1, h2, h4, x0);
+
+            Assert.Contains("rock", x4);   // 2 * 2 = 4
+            Assert.Contains("ice", x1);    // 0.5 * 2 = 1
+            Assert.Contains("ground", x0); // ground: fire=2x, flying=0x -> 0
+            Assert.Contains("grass", h4);  // fire=0.5, flying=0.5 (per this fixture) -> 0.25
+        }
+
+        [Fact]
+        public void ComputeDualTypeDefense_NullSecondType_TreatsAsSingleType()
+        {
+            var doubleFrom1 = new HashSet<string> { "water" };
+            var halfFrom1 = new HashSet<string>();
+            var noFrom1 = new HashSet<string>();
+
+            var x4 = new List<string>(); var x2 = new List<string>(); var x1 = new List<string>();
+            var h2 = new List<string>(); var h4 = new List<string>(); var x0 = new List<string>();
+
+            var ex = Record.Exception(() =>
+                PokeDataParsing.ComputeDualTypeDefense(doubleFrom1, halfFrom1, noFrom1, null, null, null, AllTypesV2, x4, x2, x1, h2, h4, x0));
+
+            Assert.Null(ex);
+            Assert.Contains("water", x2);
+        }
+
+        // --- v2.1.0: ConvertDimensions -----------------------------------------------------------
+
+        [Fact]
+        public void ConvertDimensions_Pikachu_ProducesExpectedValues()
+        {
+            // pikachu: height 4 dm, weight 60 hg
+            PokeDataParsing.ConvertDimensions(4, 60, out var heightM, out var heightFt, out var weightKg, out var weightLb);
+
+            Assert.Equal(0.4, heightM, 5);
+            Assert.Equal(1.3123, heightFt, 3);
+            Assert.Equal(6.0, weightKg, 5);
+            Assert.Equal(13.2277, weightLb, 3);
+        }
+
+        [Fact]
+        public void ConvertDimensions_Zero_ProducesZero_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ConvertDimensions(0, 0, out var hm, out var hf, out var wk, out var wl));
+            Assert.Null(ex);
+            PokeDataParsing.ConvertDimensions(0, 0, out var heightM, out var heightFt, out var weightKg, out var weightLb);
+            Assert.Equal(0, heightM);
+            Assert.Equal(0, heightFt);
+            Assert.Equal(0, weightKg);
+            Assert.Equal(0, weightLb);
+        }
+
+        // --- v2.1.0: ComputeRegularPolygonPoints -------------------------------------------------
+
+        [Fact]
+        public void ComputeRegularPolygonPoints_SixSides_ProducesSixEquidistantPoints()
+        {
+            PokeDataParsing.ComputeRegularPolygonPoints(6, 10.0, out var x, out var y);
+
+            Assert.Equal(6, x.Count);
+            for (int i = 0; i < 6; i++)
+            {
+                double distance = System.Math.Sqrt(x[i] * x[i] + y[i] * y[i]);
+                Assert.Equal(10.0, distance, 3);
+            }
+        }
+
+        [Theory]
+        [InlineData(2)]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void ComputeRegularPolygonPoints_FewerThanThreeSides_ReturnsEmpty_DoesNotThrow(int sides)
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeRegularPolygonPoints(sides, 10.0, out var x, out var y));
+            Assert.Null(ex);
+            PokeDataParsing.ComputeRegularPolygonPoints(sides, 10.0, out var x2, out var y2);
+            Assert.Empty(x2);
+        }
+
+        [Fact]
+        public void ComputeRegularPolygonPoints_ZeroRadius_ReturnsEmpty()
+        {
+            PokeDataParsing.ComputeRegularPolygonPoints(6, 0.0, out var x, out var y);
+            Assert.Empty(x);
+        }
+
+        // --- v2.1.0: ComputeStatMeshHeights ------------------------------------------------------
+
+        [Fact]
+        public void ComputeStatMeshHeights_MaxStat_ReachesFullHeightFactor()
+        {
+            var heights = PokeDataParsing.ComputeStatMeshHeights(new List<int> { 255 }, 255.0, 5.0);
+
+            Assert.Equal(5.0, heights[0], 5);
+        }
+
+        [Fact]
+        public void ComputeStatMeshHeights_ZeroStat_ProducesZeroHeight()
+        {
+            var heights = PokeDataParsing.ComputeStatMeshHeights(new List<int> { 0 }, 255.0, 5.0);
+
+            Assert.Equal(0.0, heights[0], 5);
+        }
+
+        [Fact]
+        public void ComputeStatMeshHeights_ValueAboveMax_ClampsToHeightFactor()
+        {
+            var heights = PokeDataParsing.ComputeStatMeshHeights(new List<int> { 999 }, 255.0, 5.0);
+
+            Assert.Equal(5.0, heights[0], 5);
+        }
+
+        [Fact]
+        public void ComputeStatMeshHeights_NullList_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeStatMeshHeights(null, 255.0, 5.0));
+            Assert.Null(ex);
+            Assert.Empty(PokeDataParsing.ComputeStatMeshHeights(null, 255.0, 5.0));
+        }
+
+        // --- v2.1.0: FilterByRule -----------------------------------------------------------------
+
+        private static readonly List<string> FilterNames = new List<string> { "bulbasaur", "charmander", "squirtle", "pikachu" };
+        private static readonly List<double> FilterValues = new List<double> { 318, 309, 314, 320 };
+
+        [Fact]
+        public void FilterByRule_Between_ReturnsMatchesWithinRange()
+        {
+            PokeDataParsing.FilterByRule(FilterNames, FilterValues, "Between", 310, 320,
+                out var names, out var values, out var indices);
+
+            Assert.Equal(new[] { "bulbasaur", "squirtle", "pikachu" }, names);
+            Assert.Equal(new[] { 0, 2, 3 }, indices);
+        }
+
+        [Fact]
+        public void FilterByRule_GreaterThan_UsesMinAsThreshold()
+        {
+            PokeDataParsing.FilterByRule(FilterNames, FilterValues, "GreaterThan", 319, 999,
+                out var names, out var values, out var indices);
+
+            Assert.Equal(new[] { "pikachu" }, names);
+        }
+
+        [Fact]
+        public void FilterByRule_LessThan_UsesMaxAsThreshold()
+        {
+            PokeDataParsing.FilterByRule(FilterNames, FilterValues, "LessThan", 0, 310,
+                out var names, out var values, out var indices);
+
+            Assert.Equal(new[] { "charmander" }, names);
+        }
+
+        [Fact]
+        public void FilterByRule_Equals_UsesMinAsTarget()
+        {
+            PokeDataParsing.FilterByRule(FilterNames, FilterValues, "Equals", 314, 0,
+                out var names, out var values, out var indices);
+
+            Assert.Equal(new[] { "squirtle" }, names);
+        }
+
+        [Fact]
+        public void FilterByRule_UnknownRule_FallsBackToBetween()
+        {
+            PokeDataParsing.FilterByRule(FilterNames, FilterValues, "Bogus", 310, 320,
+                out var names, out var values, out var indices);
+
+            Assert.Equal(new[] { "bulbasaur", "squirtle", "pikachu" }, names);
+        }
+
+        [Fact]
+        public void FilterByRule_MismatchedListLengths_UsesShorterLength_DoesNotThrow()
+        {
+            var shortValues = new List<double> { 318 };
+
+            var ex = Record.Exception(() => PokeDataParsing.FilterByRule(FilterNames, shortValues, "Between", 0, 999, out var n, out var v, out var i));
+
+            Assert.Null(ex);
+            PokeDataParsing.FilterByRule(FilterNames, shortValues, "Between", 0, 999, out var names, out var values, out var indices);
+            Assert.Single(names);
+        }
+
+        [Fact]
+        public void FilterByRule_NullInputs_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.FilterByRule(null, null, "Between", 0, 1, out var n, out var v, out var i));
+            Assert.Null(ex);
+        }
+
+        // --- v2.1.0: BuildCardLabel ---------------------------------------------------------------
+
+        [Fact]
+        public void BuildCardLabel_NameAndStats_JoinsAllLinesInOrder()
+        {
+            var label = PokeDataParsing.BuildCardLabel("Pikachu", new List<string> { "hp: 35", "attack: 55" });
+
+            Assert.StartsWith("Pikachu", label);
+            Assert.Contains("hp: 35", label);
+            Assert.Contains("attack: 55", label);
+            Assert.True(label.IndexOf("hp: 35") < label.IndexOf("attack: 55"));
+        }
+
+        [Fact]
+        public void BuildCardLabel_EmptyInputs_ReturnsEmptyString()
+        {
+            Assert.Equal("", PokeDataParsing.BuildCardLabel("", null));
+            Assert.Equal("", PokeDataParsing.BuildCardLabel(null, new List<string>()));
+        }
+
+        [Fact]
+        public void BuildCardLabel_NameOnly_NoTrailingNewline()
+        {
+            var label = PokeDataParsing.BuildCardLabel("Pikachu", null);
+            Assert.Equal("Pikachu", label);
+        }
+
+        // --- v2.1.0: SummarizeBatchStatus ----------------------------------------------------------
+
+        [Fact]
+        public void SummarizeBatchStatus_AllSucceeded_ReportsOk()
+        {
+            Assert.Equal("OK (3/3)", PokeDataParsing.SummarizeBatchStatus(3, 0));
+        }
+
+        [Fact]
+        public void SummarizeBatchStatus_SomeFailed_ReportsPartial()
+        {
+            Assert.Equal("Partial: 2 succeeded, 1 failed", PokeDataParsing.SummarizeBatchStatus(2, 1));
+        }
+
+        [Fact]
+        public void SummarizeBatchStatus_AllFailed_ReportsPartial()
+        {
+            Assert.Equal("Partial: 0 succeeded, 3 failed", PokeDataParsing.SummarizeBatchStatus(0, 3));
+        }
     }
 }

@@ -21,8 +21,24 @@ Grasshopper canvas — no token, no sign-up, fully public.
   the full 18x18 attacking/defending damage matrix.
 - **Turn an evolution chain into a branching diagram** — flattened parent/child/trigger edges,
   ready for a parametric node-position layout.
-- **Feed team-planning tools with move/ability mechanics** — power, accuracy, PP, damage class,
-  and effect text, without leaving Grasshopper.
+- **Feed team-planning tools with move/ability mechanics** — power, accuracy, PP, priority,
+  damage class, and localized descriptions, without leaving Grasshopper.
+- **Hear a Pokemon's cry alongside its other data** — cry URLs plus an in-memory, trigger-to-play
+  audio component, no separate download step.
+- **Check type matchups at a glance** — one component returns exactly what an attacking type is
+  super-effective, resisted, or immune against.
+- **Turn base stats into a radar chart, colored by type** — a normalized 2D stat-radar polygon
+  driven by `Get Pokemon`'s stat values and `Get Type`'s canonical type color.
+- **See a dual-type Pokemon's true defenses** — one component combines two types' relations into
+  the real 4x/2x/1x/0.5x/0.25x/0x multiplier per attacking type.
+- **Pull a generation's whole species roster, then filter it** — one component per step, no
+  hand-wiring native GH list filters for a "stat total between X and Y" style query.
+- **Look up items and natures for team/breeding tools** — category, cost, fling power, and
+  effect text for items; stat modifiers and berry-flavor preferences for natures.
+- **Convert raw height/weight into real-world scale geometry** — metric + imperial units plus a
+  placeable reference Box.
+- **Extrude stats into a 3D mesh, or lay out a viewport "trading card"** — a solid stat-comparison
+  shape, dual-type color swatches, and a sprite+stats card layout.
 
 Component chains for each of these are in [docs/workflows.md](docs/workflows.md); worked examples
 are in [docs/examples/](docs/examples/).
@@ -73,11 +89,24 @@ Full walkthrough: [docs/quickstart.md](docs/quickstart.md). Common wirings as co
 | Pokemon | Get Pokemon Batch | Pokemon Names Or IDs | (same fields, as a tree) | Batch lookup for a list of Pokemon |
 | Pokemon | Get Pokemon Species | Species Name Or ID | Color, Shape, Habitat, Capture Rate, Base Happiness, Growth Rate, Egg Groups, Is Legendary, Is Mythical, Status, Response | Species classification detail |
 | Pokemon | Sprite Downloader | Sprite URL | Bitmap, Status | Downloads an image URL to a Bitmap |
-| Types | Get Type | Type Name | Double/Half/No Damage To/From, Status, Response, Associated Pokemon | One type's damage relations |
+| Pokemon | Pokemon Cry | Pokemon Name Or ID, Play | Legacy Cry URL, Latest Cry URL, Status | Cry audio URLs + trigger-to-play |
+| Pokemon | Batch Downloader | URLs, Trigger | Bitmaps, Status | Parallel image downloads, trigger-gated |
+| Types | Get Type | Type Name | Double/Half/No Damage To/From, Status, Response, Associated Pokemon, Color | One type's damage relations |
 | Types | Get Type Matrix | (none) | Attacking Type, Defending Type, Multiplier, Status, Response | Full 18x18 type matrix |
+| Types | Type Matchup | Attacking Type | 2x/0.5x/0x Damage To, Status, Response | Outgoing damage relations only |
+| Types | Dual Type Matchup | Type 1, Type 2 | 4x/2x/1x/0.5x/0.25x/0x Damage From, Status, Response | True dual-type defensive multipliers |
 | Evolution | Get Evolution Chain | Species Name Or ID | Parent Species, Child Species, Trigger, Status, Response | Flattened evolution chain |
-| Moves | Get Move | Move Name Or ID | Power, Accuracy, PP, Damage Class, Type, Effect Text, Status, Response | Move mechanics lookup |
-| Moves | Get Ability | Ability Name Or ID | Generation, Effect Text, Status, Response | Ability mechanics lookup |
+| Moves | Get Move | Move Name Or ID | Power, Accuracy, PP, Damage Class, Type, Effect Text, Status, Response, Priority, Description | Move mechanics lookup |
+| Moves | Get Ability | Ability Name Or ID | Generation, Effect Text, Status, Response, Short Effect | Ability mechanics lookup |
+| Items | Get Item | Item Name Or ID | Category, Cost, Fling Power, Effect Text, Sprite URL, Status, Response | Item lookup |
+| Stats | Get Nature | Nature Name Or ID | Increased/Decreased Stat, Liked/Disliked Flavor, Status, Response | Nature lookup |
+| Data | Get Generation | Generation | Species IDs, Species Names, Region, Status, Response | Generation species roster |
+| Data | Pokemon Filter | Names, Values, Filter Rule, Min, Max | Filtered Names, Filtered Values, Match Indices, Status | Parallel-list filtering |
+| Geometry | Pokemon Dimensions | Height, Weight, Plane | Height (m/ft), Weight (kg/lb), Reference Box, Status | Unit conversion + reference Box |
+| Visualization | Stat Radar | Stat Values, Radius, Max Stat, Center | Radar Points, Radar Polyline, Status | Normalized 2D stat radar chart |
+| Visualization | Stat Mesh 3D | Stat Values, Height Factor, Radius, Max Stat, Center | Mesh, Status | Extruded 3D radar mesh |
+| Display | Type Palette | Type 1, Type 2 | Color 1, Color 2, Blend Color, Status | Dual-type color swatches |
+| Display | Canvas Sprite Card | Name, Stats, Sprite Bitmap, Point, Width, Height | Card Mesh, Label, Card Plane, Sprite Bitmap, Status | Viewport card layout |
 | Presets | Type Name | (none) | Type Name | Fixed dropdown of the 18 elemental types |
 <!-- pr:end components -->
 

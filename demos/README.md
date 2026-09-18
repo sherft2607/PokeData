@@ -134,3 +134,55 @@ all with `Parent Species` = `eevee`.)
 - `Type Name` preset (`PokemonTypePreset`, Presets tab) wired into `Get Type`'s `Type Name` input —
   confirms the value-list output name/nickname (`TN`) lines up with the consumer input, per the spec's
   I/O line-up check.
+
+## v2.0.0 additions
+
+- **Pokemon Cry** (new, Pokemon tab) — `Pokemon Name Or ID` = `"pikachu"`, `Play` = `false`:
+  `Status` = `OK`, `Legacy Cry URL` / `Latest Cry URL` both non-empty `.ogg` URLs. Then set
+  `Play` = `true` and confirm the cry audio plays via the OS default player (a transient temp
+  `.ogg` file is written to `%TEMP%` only at this point).
+- **Type Matchup** (new, Types tab) — `Attacking Type` = `"fire"`: `Status` = `OK`,
+  `2x Damage To` contains `grass`, `ice`, `bug`, `steel`; `0.5x Damage To` contains `fire`,
+  `water`, `rock`, `dragon`; `0x Damage To` is empty.
+- **Get Move** gained two appended outputs: `Priority` (PR) / `Description` (D) — for
+  `"thunderbolt"`, `Priority` = `0`; `Description` should be a non-empty list with one entry per
+  language.
+- **Get Ability** gained an appended output: `Short Effect` (SE) — for `"static"`, a non-empty
+  list with one entry per language.
+- **Get Type** gained an appended output: `Color` (CO) — for `"fire"`, a swatch/panel should show
+  an orange-red color (canonical type color, not from the API).
+- **Stat Radar** (new, Visualization tab) — wire `Get Pokemon`'s `Stat Values` output (for
+  `"pikachu"`) into `Stat Values`; leave `Radius`/`Max Stat`/`Center` at defaults: `Status` = `OK`,
+  `Radar Points` has 6 points, `Radar Polyline` is a closed 6-sided polygon visible in the Rhino
+  viewport.
+
+## v2.0.0 batch 2 additions (10-component round, same unreleased version)
+
+- **Dual Type Matchup** (Types tab) — `Type 1` = `"fire"`, `Type 2` = `"flying"`: `Status` = `OK`,
+  `4x Damage From` contains `rock`, `1x Damage From` contains `ice`, `0x Damage From` contains
+  `ground`. Leave `Type 2` empty and confirm it matches `Type Matchup`'s fire-only results.
+- **Get Generation** (new, Data tab) — `Generation` = `1`: `Status` = `OK`, `Species IDs` has 151
+  entries starting `1`, `Species Names` starts with `bulbasaur`, `Region` = `kanto`.
+- **Pokemon Filter** (new, Data tab) — wire `Get Generation`'s `Species Names` into `Names` and a
+  matching-length list of numbers into `Values` (e.g. species IDs cast to number); `Filter Rule` =
+  `"LessThan"`, `Max` = `10`: `Filtered Names` should be the species with IDs 1-9, `Match Indices`
+  parallel and 0-based.
+- **Get Item** (new, Items tab) — `Item Name Or ID` = `"poke-ball"`: `Status` = `OK`, `Category` =
+  `standard-balls`, `Effect Text` non-empty, `Sprite URL` a non-empty
+  `raw.githubusercontent.com` URL.
+- **Get Nature** (new, Stats tab) — `Nature Name Or ID` = `"adamant"`: `Increased Stat` = `attack`,
+  `Decreased Stat` = `special-attack`. Then `"hardy"`: all four outputs empty (neutral nature).
+- **Pokemon Dimensions** (new, Geometry tab) — wire `Get Pokemon`'s `Height`/`Weight` (for
+  `"pikachu"`, 4/60) into `Height`/`Weight`: `Height (m)` = `0.4`, `Weight (kg)` = `6`, `Reference
+  Box` visible in the Rhino viewport as a small box at the origin.
+- **Stat Mesh 3D** (new, Visualization tab) — wire `Get Pokemon`'s `Stat Values` (for `"pikachu"`)
+  into `Stat Values`: `Status` = `OK`, `Mesh` renders as a closed 6-sided extruded solid in the
+  viewport, with visibly uneven top heights per stat.
+- **Type Palette** (new, Display tab) — `Type 1` = `"fire"`, `Type 2` = `"water"`: `Color 1` an
+  orange-red swatch, `Color 2` a blue swatch, `Blend Color` a swatch roughly between the two.
+- **Canvas Sprite Card** (new, Display tab) — `Name` = `"Pikachu"`, `Stats` = a text panel with
+  `"hp: 35"` and `"attack: 55"` (2 items): `Status` = `OK`, `Card Mesh` a flat rectangle in the
+  viewport, `Label` = `"Pikachu\nhp: 35\nattack: 55"`.
+- **Batch Downloader** (new, Pokemon tab) — wire 2-3 sprite URLs (e.g. from `Get Pokemon Batch`)
+  into `URLs`, `Trigger` = `false` first (`Bitmaps` empty, `Status` = `"Waiting for trigger."`),
+  then `Trigger` = `true`: `Bitmaps` has one decoded image per URL, `Status` = `"OK (n/n)"`.

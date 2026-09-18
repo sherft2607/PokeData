@@ -234,5 +234,92 @@
       "error_body": "",
       "note": "Manually verified against live API by user outside sandbox (pokeapi.co unreachable from sandbox egress, see dogfood F5); response shape confirmed: generation.name, effect_entries[].effect"
     }
+  },
+  {
+    "endpoint_id": "generation_read",
+    "component": "GetGenerationComponent",
+    "method": "GET",
+    "url_template": "/api/v2/generation/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/generation/1/ and /generation/9/ both 200 (this sandbox reached pokeapi.co this session, unlike the original build). Response shape confirmed: main_region.name, pokemon_species[].name/url"
+    }
+  },
+  {
+    "endpoint_id": "item_read",
+    "component": "GetItemComponent",
+    "method": "GET",
+    "url_template": "/api/v2/item/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0 — flavor_text_entries uses \"text\" not \"flavor_text\"; \"cost\" absent on live responses observed",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/item/poke-ball/ 200; /api/v2/item/999999/ 404 (matches SendAsync's existing 404 handling). Response shape confirmed: category.name, fling_power, effect_entries[].effect/language.name, sprites.default; cost field absent (parsed null-safe to 0)"
+    }
+  },
+  {
+    "endpoint_id": "nature_read",
+    "component": "GetNatureComponent",
+    "method": "GET",
+    "url_template": "/api/v2/nature/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v2.1.0 — increased_stat/decreased_stat/likes_flavor/hates_flavor are JSON null for neutral natures",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/nature/adamant/ and /nature/hardy/ both 200. Response shape confirmed: increased_stat.name/decreased_stat.name (adamant), all four null for neutral hardy — SafeString already null-safe on this shape"
+    }
   }
 ]

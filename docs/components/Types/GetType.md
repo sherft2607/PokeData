@@ -22,6 +22,7 @@ that has this type.
 | Status | text | Success or error status |
 | Response | text | Raw JSON response |
 | Associated Pokemon | text (list) | Every Pokemon that has this type |
+| Color | colour | Canonical display color for this elemental type (v2.0.0, not from the API) |
 
 ## API endpoint
 
@@ -38,4 +39,5 @@ that has this type.
 
 - [Get Type Matrix](GetTypeMatrix.md) — the full 18x18 matrix in one call, built from repeated
   calls to this same endpoint
+- [Type Matchup](TypeMatchup.md) — just the outgoing (attacking) relations, split into 3 lists
 - [Type Name preset](../Presets/PokemonTypePreset.md)

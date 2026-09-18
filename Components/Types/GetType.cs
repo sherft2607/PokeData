@@ -33,6 +33,8 @@ namespace PokeData
             pManager.AddTextParameter("Response", "R", "Raw JSON response.", GH_ParamAccess.item);
             // extend-round-1: appended at the end so existing output indices (0-7) are unchanged
             pManager.AddTextParameter("Associated Pokemon", "AP", "Every Pokemon that has this type.", GH_ParamAccess.list);
+            // v2.0.0: appended at the end so existing output indices (0-8) are unchanged
+            pManager.AddColourParameter("Color", "CO", "Canonical display color for this elemental type.", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -100,6 +102,7 @@ namespace PokeData
             DA.SetData(6, "OK");
             DA.SetData(7, json);
             DA.SetDataList(8, associatedPokemon);
+            DA.SetData(9, PluginUtilities.TypeColor(typeName));
         }
 
         private static void FillNames(JArray array, List<string> into)

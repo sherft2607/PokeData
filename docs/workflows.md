@@ -14,3 +14,18 @@ What you can do with PokeData:
   [Move and ability lookup](examples/moves-abilities.md)
 - Look up a species' color, shape, habitat, capture rate, and legendary/mythical flags
 - Turn a sprite image URL into an actual `Bitmap` on the canvas for image samplers
+- Hear a Pokemon's cry alongside its other data, in-memory, no separate download step (v2.0.0)
+- Look up which types are super-effective, resisted, or immune against a given attacking type,
+  without reading the full to/from matrix (v2.0.0)
+- Turn base stat values into a normalized 2D radar/spider chart polygon for parametric
+  stat-comparison geometry, colored by the type's canonical color (v2.0.0)
+- See a two-type Pokemon's true combined defensive multiplier against every attacking type,
+  not just one type's own relations (v2.0.0)
+- Pull every species introduced in a given generation, then filter a Pokedex-scale list down to
+  matches by a numeric rule, without hand-wiring native GH list filters (v2.0.0)
+- Look up an item's category/cost/fling power/effect, or a nature's stat modifiers and
+  berry-flavor preferences, for team-building and EV-planning tools (v2.0.0)
+- Convert a Pokemon's raw height/weight into metric+imperial units and a placeable reference Box,
+  for real-world-scale parametric geometry (v2.0.0)
+- Extrude base stats into a solid 3D radar mesh, get dual-type color swatches, or lay out a
+  sprite + stats as a viewport "trading card" (v2.0.0)

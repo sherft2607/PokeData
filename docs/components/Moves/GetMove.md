@@ -20,6 +20,8 @@ Looks up a move's power, accuracy, PP, damage class, type, and effect text.
 | Effect Text | text | Short English effect description |
 | Status | text | Success or error status |
 | Response | text | Raw JSON response |
+| Priority | integer | Move priority bracket (v2.0.0; can be negative, e.g. `-6` for Trick Room) |
+| Description | text (list) | One flavor-text description per available language (v2.0.0) |
 
 ## API endpoint
 

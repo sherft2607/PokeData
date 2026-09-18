@@ -34,6 +34,62 @@
       "data_shape": "single move or ability -> item of scalar fields",
       "varies_per_item": false,
       "benchmark": null
+    },
+    {
+      "name": "v2.0.0: audio cries",
+      "user_goal": "Hear a Pokemon's cry alongside its other data on the canvas, without a separate manual download/playback step",
+      "data_shape": "single pokemon -> two cry URLs (item) + in-memory audio bytes on trigger",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.0.0: type matchups",
+      "user_goal": "Given an attacking type, quickly see which types it's super-effective, resisted, or immune against, without reading the full to/from matrix from Get Type",
+      "data_shape": "single type -> 3 parallel lists (2x/0.5x/0x)",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.0.0: parametric stat radar visuals",
+      "user_goal": "Turn a Pokemon's base stat values into a normalized 2D radar/spider chart polygon, colored by its canonical type color, for parametric stat-comparison geometry directly on the canvas",
+      "data_shape": "6 stat values -> 6 points + 1 closed polyline",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.1.0: dual-type defense",
+      "user_goal": "Given a two-type Pokemon (e.g. fire/flying), see its true combined defensive multiplier against every attacking type (4x/2x/1x/0.5x/0.25x/0x), not just one type's own relations",
+      "data_shape": "2 types -> 6 bucketed lists of attacking type names",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.1.0: generation-scoped species rosters",
+      "user_goal": "Pull every species ID/name introduced in a given generation (1-9) plus its main region, to drive generation-scoped tools without hand-listing species",
+      "data_shape": "1 generation number -> list of species IDs + list of species names + 1 region",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.1.0: item and nature lookup for team/breeding tools",
+      "user_goal": "Pull an item's category/cost/fling power/effect/sprite, or a nature's stat modifiers and berry-flavor preferences, for team-building and EV-planning tools alongside the existing move/ability lookup",
+      "data_shape": "single item or nature -> item of scalar fields",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.1.0: real-world scale reference geometry",
+      "user_goal": "Convert PokeAPI's raw decimetre/hectogram height/weight fields into metric+imperial units and a placeable reference Box, so a Pokemon's real-world scale can drive parametric geometry directly",
+      "data_shape": "height (dm) + weight (hg) -> 4 scalar conversions + 1 Box",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v2.1.0: 3D stat mesh and viewport display helpers",
+      "user_goal": "Extrude base stats into a solid 3D radar mesh (a stronger visual comparison than the flat polyline), get dual-type color swatches, filter a Pokedex-scale list down to matches, and lay out a sprite + stats as a viewport 'trading card'",
+      "data_shape": "stat values -> Mesh; 2 types -> 3 colors; parallel name/value lists -> filtered subset; name+stats+bitmap+point -> card Mesh+label+plane",
+      "varies_per_item": true,
+      "benchmark": null
     }
   ]
 }
