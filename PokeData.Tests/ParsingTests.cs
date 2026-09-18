@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -825,6 +826,286 @@ namespace PokeData.Tests
         public void SummarizeBatchStatus_AllFailed_ReportsPartial()
         {
             Assert.Equal("Partial: 0 succeeded, 3 failed", PokeDataParsing.SummarizeBatchStatus(0, 3));
+        }
+
+        // --- v3.0.0: ComputeDefenseMultipliers ----------------------------------------------------
+
+        private static readonly string[] AllTypesV3 = new[]
+        {
+            "normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison",
+            "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"
+        };
+
+        [Fact]
+        public void ComputeDefenseMultipliers_SingleType_MatchesMultiplierFor()
+        {
+            var doubleFrom = new HashSet<string> { "water" };
+            var halfFrom = new HashSet<string> { "fire" };
+            var noFrom = new HashSet<string>();
+
+            var result = PokeDataParsing.ComputeDefenseMultipliers(doubleFrom, halfFrom, noFrom, null, null, null, AllTypesV3);
+
+            Assert.Equal(2.0, result[Array.IndexOf(AllTypesV3, "water")]);
+            Assert.Equal(0.5, result[Array.IndexOf(AllTypesV3, "fire")]);
+            Assert.Equal(1.0, result[Array.IndexOf(AllTypesV3, "normal")]);
+        }
+
+        [Fact]
+        public void ComputeDefenseMultipliers_DualType_MultipliesIndependentResults()
+        {
+            var doubleFrom1 = new HashSet<string> { "rock" };
+            var halfFrom1 = new HashSet<string>();
+            var noFrom1 = new HashSet<string>();
+
+            var doubleFrom2 = new HashSet<string> { "rock" };
+            var halfFrom2 = new HashSet<string>();
+            var noFrom2 = new HashSet<string>();
+
+            var result = PokeDataParsing.ComputeDefenseMultipliers(doubleFrom1, halfFrom1, noFrom1, doubleFrom2, halfFrom2, noFrom2, AllTypesV3);
+
+            Assert.Equal(4.0, result[Array.IndexOf(AllTypesV3, "rock")]);
+        }
+
+        [Fact]
+        public void ComputeDefenseMultipliers_NullAllTypes_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeDefenseMultipliers(null, null, null, null, null, null, null));
+            Assert.Null(ex);
+            Assert.Empty(PokeDataParsing.ComputeDefenseMultipliers(null, null, null, null, null, null, null));
+        }
+
+        // --- v3.0.0: ComputeTeamSynergy ------------------------------------------------------------
+
+        [Fact]
+        public void ComputeTeamSynergy_AllMembersWeakToOneType_IsACoverageGap()
+        {
+            var member1 = new double[AllTypesV3.Length];
+            var member2 = new double[AllTypesV3.Length];
+            for (int i = 0; i < AllTypesV3.Length; i++) { member1[i] = 1.0; member2[i] = 1.0; }
+            int rockIndex = Array.IndexOf(AllTypesV3, "rock");
+            member1[rockIndex] = 2.0;
+            member2[rockIndex] = 4.0;
+
+            PokeDataParsing.ComputeTeamSynergy(new List<double[]> { member1, member2 }, AllTypesV3,
+                out var coverageGaps, out var compositeVulnerability);
+
+            Assert.Contains("rock", coverageGaps);
+            Assert.Equal(3.0, compositeVulnerability[rockIndex]);
+        }
+
+        [Fact]
+        public void ComputeTeamSynergy_OneMemberResists_NotACoverageGap()
+        {
+            var member1 = new double[AllTypesV3.Length];
+            var member2 = new double[AllTypesV3.Length];
+            for (int i = 0; i < AllTypesV3.Length; i++) { member1[i] = 1.0; member2[i] = 1.0; }
+            int rockIndex = Array.IndexOf(AllTypesV3, "rock");
+            member1[rockIndex] = 2.0;
+            member2[rockIndex] = 0.5; // resists — team is covered here
+
+            PokeDataParsing.ComputeTeamSynergy(new List<double[]> { member1, member2 }, AllTypesV3,
+                out var coverageGaps, out var compositeVulnerability);
+
+            Assert.DoesNotContain("rock", coverageGaps);
+        }
+
+        [Fact]
+        public void ComputeTeamSynergy_EmptyTeam_ReturnsZeroVulnerability_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeTeamSynergy(new List<double[]>(), AllTypesV3, out var g, out var v));
+            Assert.Null(ex);
+
+            PokeDataParsing.ComputeTeamSynergy(new List<double[]>(), AllTypesV3, out var gaps, out var vulnerability);
+            Assert.All(vulnerability, v => Assert.Equal(0.0, v));
+            Assert.Empty(gaps);
+        }
+
+        [Fact]
+        public void ComputeTeamSynergy_NullAllTypes_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeTeamSynergy(new List<double[]>(), null, out var g, out var v));
+            Assert.Null(ex);
+        }
+
+        // --- v3.0.0: ComputeHpStat / ComputeBattleStat / NatureMultiplierFor ---------------------
+
+        [Fact]
+        public void ComputeHpStat_KnownValues_MatchesFormula()
+        {
+            // base 35, IV 31, EV 0, level 50 -> (2*35+31+0)*50/100 + 50 + 10 = 110
+            Assert.Equal(110, PokeDataParsing.ComputeHpStat(35, 31, 0, 50));
+        }
+
+        [Fact]
+        public void ComputeHpStat_ZeroIvZeroEv_LowerThanMaxIv()
+        {
+            int withMaxIv = PokeDataParsing.ComputeHpStat(35, 31, 0, 50);
+            int withZeroIv = PokeDataParsing.ComputeHpStat(35, 0, 0, 50);
+            Assert.True(withZeroIv < withMaxIv);
+        }
+
+        [Fact]
+        public void ComputeBattleStat_NeutralNature_MatchesFormula()
+        {
+            // base 55, IV 31, EV 0, level 50, neutral -> floor((2*55+31+0)*50/100 + 5) = 75
+            Assert.Equal(75, PokeDataParsing.ComputeBattleStat(55, 31, 0, 50, 1.0));
+        }
+
+        [Fact]
+        public void ComputeBattleStat_BoostedNature_Multiplies1_1AndTruncates()
+        {
+            // 75 * 1.1 = 82.5 -> truncates to 82
+            Assert.Equal(82, PokeDataParsing.ComputeBattleStat(55, 31, 0, 50, 1.1));
+        }
+
+        [Fact]
+        public void ComputeBattleStat_HinderedNature_Multiplies0_9()
+        {
+            // 75 * 0.9 = 67.5 -> truncates to 67
+            Assert.Equal(67, PokeDataParsing.ComputeBattleStat(55, 31, 0, 50, 0.9));
+        }
+
+        [Theory]
+        [InlineData("attack", "special-attack", "attack", 1.1)]
+        [InlineData("attack", "special-attack", "special-attack", 0.9)]
+        [InlineData("attack", "special-attack", "speed", 1.0)]
+        [InlineData("", "", "attack", 1.0)]
+        public void NatureMultiplierFor_ReturnsExpectedMultiplier(string increased, string decreased, string stat, double expected)
+        {
+            Assert.Equal(expected, PokeDataParsing.NatureMultiplierFor(increased, decreased, stat));
+        }
+
+        [Fact]
+        public void NatureMultiplierFor_SameIncreasedAndDecreased_TreatedAsNeutral()
+        {
+            // defensive case — shouldn't occur in real data, but a nature that "raises and lowers
+            // the same stat" should net out neutral rather than picking one arbitrarily
+            Assert.Equal(1.0, PokeDataParsing.NatureMultiplierFor("attack", "attack", "attack"));
+        }
+
+        [Fact]
+        public void NatureMultiplierFor_EmptyStatName_ReturnsNeutral_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.NatureMultiplierFor("attack", "defense", ""));
+            Assert.Null(ex);
+            Assert.Equal(1.0, PokeDataParsing.NatureMultiplierFor("attack", "defense", ""));
+        }
+
+        // --- v3.0.0: ComputeEvolutionTreeLayout -----------------------------------------------------
+
+        [Fact]
+        public void ComputeEvolutionTreeLayout_LinearChain_AllNodesShareSameX()
+        {
+            var parents = new List<string> { "bulbasaur", "ivysaur" };
+            var children = new List<string> { "ivysaur", "venusaur" };
+            var triggers = new List<string> { "level-up", "level-up" };
+
+            PokeDataParsing.ComputeEvolutionTreeLayout("bulbasaur", parents, children, triggers, 10.0, 10.0,
+                out var nodeNames, out var nodeX, out var nodeY, out var edgeFrom, out var edgeTo, out var edgeTriggers);
+
+            Assert.Equal(new[] { "bulbasaur", "ivysaur", "venusaur" }, nodeNames);
+            Assert.Equal(nodeX[0], nodeX[1]);
+            Assert.Equal(nodeX[1], nodeX[2]);
+            Assert.Equal(0.0, nodeY[0]);
+            Assert.Equal(-10.0, nodeY[1]);
+            Assert.Equal(-20.0, nodeY[2]);
+            Assert.Equal(2, edgeFrom.Count);
+        }
+
+        [Fact]
+        public void ComputeEvolutionTreeLayout_BranchingChain_SpreadsSiblingsAndCentersParent()
+        {
+            var parents = new List<string> { "eevee", "eevee", "eevee" };
+            var children = new List<string> { "vaporeon", "jolteon", "flareon" };
+            var triggers = new List<string> { "use-item", "use-item", "use-item" };
+
+            PokeDataParsing.ComputeEvolutionTreeLayout("eevee", parents, children, triggers, 10.0, 10.0,
+                out var nodeNames, out var nodeX, out var nodeY, out var edgeFrom, out var edgeTo, out var edgeTriggers);
+
+            Assert.Equal(4, nodeNames.Count);
+            int eeveeIndex = nodeNames.IndexOf("eevee");
+            int vaporeonIndex = nodeNames.IndexOf("vaporeon");
+            int jolteonIndex = nodeNames.IndexOf("jolteon");
+            int flareonIndex = nodeNames.IndexOf("flareon");
+
+            // eevee's x is centered over its 3 children
+            double expectedCenter = (nodeX[vaporeonIndex] + nodeX[jolteonIndex] + nodeX[flareonIndex]) / 3.0;
+            Assert.Equal(expectedCenter, nodeX[eeveeIndex], 6);
+
+            // children are at distinct x positions
+            Assert.NotEqual(nodeX[vaporeonIndex], nodeX[jolteonIndex]);
+            Assert.NotEqual(nodeX[jolteonIndex], nodeX[flareonIndex]);
+
+            Assert.Equal(3, edgeFrom.Count);
+            Assert.All(edgeFrom, i => Assert.Equal(eeveeIndex, i));
+        }
+
+        [Fact]
+        public void ComputeEvolutionTreeLayout_NoEvolutions_SingleRootNode()
+        {
+            PokeDataParsing.ComputeEvolutionTreeLayout("tauros", new List<string>(), new List<string>(), new List<string>(), 10.0, 10.0,
+                out var nodeNames, out var nodeX, out var nodeY, out var edgeFrom, out var edgeTo, out var edgeTriggers);
+
+            Assert.Single(nodeNames);
+            Assert.Equal("tauros", nodeNames[0]);
+            Assert.Empty(edgeFrom);
+        }
+
+        [Fact]
+        public void ComputeEvolutionTreeLayout_EmptyRootName_ReturnsEmpty_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.ComputeEvolutionTreeLayout("", new List<string>(), new List<string>(), new List<string>(), 10.0, 10.0,
+                out var nodeNames, out var nodeX, out var nodeY, out var edgeFrom, out var edgeTo, out var edgeTriggers));
+
+            Assert.Null(ex);
+            PokeDataParsing.ComputeEvolutionTreeLayout("", new List<string>(), new List<string>(), new List<string>(), 10.0, 10.0,
+                out var names2, out var x2, out var y2, out var ef2, out var et2, out var tr2);
+            Assert.Empty(names2);
+        }
+
+        [Fact]
+        public void ComputeEvolutionTreeLayout_EdgeTriggersParallelToEdges()
+        {
+            var parents = new List<string> { "bulbasaur" };
+            var children = new List<string> { "ivysaur" };
+            var triggers = new List<string> { "level-up" };
+
+            PokeDataParsing.ComputeEvolutionTreeLayout("bulbasaur", parents, children, triggers, 10.0, 10.0,
+                out var nodeNames, out var nodeX, out var nodeY, out var edgeFrom, out var edgeTo, out var edgeTriggers);
+
+            Assert.Equal(new[] { "level-up" }, edgeTriggers);
+        }
+
+        // --- v3.0.0: Luminance / IsOpaquePixel -------------------------------------------------------
+
+        [Fact]
+        public void Luminance_White_ReturnsOne()
+        {
+            Assert.Equal(1.0, PokeDataParsing.Luminance(255, 255, 255), 3);
+        }
+
+        [Fact]
+        public void Luminance_Black_ReturnsZero()
+        {
+            Assert.Equal(0.0, PokeDataParsing.Luminance(0, 0, 0), 3);
+        }
+
+        [Fact]
+        public void Luminance_PureGreen_WeightedHigherThanPureBlue()
+        {
+            double green = PokeDataParsing.Luminance(0, 255, 0);
+            double blue = PokeDataParsing.Luminance(0, 0, 255);
+            Assert.True(green > blue);
+        }
+
+        [Theory]
+        [InlineData(255, 10, true)]
+        [InlineData(0, 10, false)]
+        [InlineData(10, 10, false)]
+        [InlineData(11, 10, true)]
+        public void IsOpaquePixel_ComparesAgainstThreshold(int alpha, int threshold, bool expected)
+        {
+            Assert.Equal(expected, PokeDataParsing.IsOpaquePixel(alpha, threshold));
         }
     }
 }

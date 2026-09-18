@@ -27,8 +27,9 @@ namespace PokeData
         internal static readonly string CategoryAHGeometry      = "8. Geometry";
         internal static readonly string CategoryAIVisualization = "9. Visualization";
         internal static readonly string CategoryAJDisplay       = "10. Display";
-        internal static readonly string CategoryZYPresets       = "11. Presets";
-        internal static readonly string CategoryZZUtilities     = "12. Utilities";
+        internal static readonly string CategoryAKGenerative    = "11. Generative";
+        internal static readonly string CategoryZYPresets       = "12. Presets";
+        internal static readonly string CategoryZZUtilities     = "13. Utilities";
 
         // v2.1.0: the 18 canonical elemental types, in the same fixed order used throughout the
         // plugin (matches GetTypeMatrixComponent's own list) — the "attacking type" universe for

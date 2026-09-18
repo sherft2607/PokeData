@@ -39,6 +39,17 @@ Grasshopper canvas — no token, no sign-up, fully public.
   placeable reference Box.
 - **Extrude stats into a 3D mesh, or lay out a viewport "trading card"** — a solid stat-comparison
   shape, dual-type color swatches, and a sprite+stats card layout.
+- **See an evolution chain as real tree geometry** — automatically laid-out points and branch
+  lines, not just flattened edges you have to position by hand.
+- **Turn a sprite into 3D geometry** — a voxel box mesh with per-pixel color, or a luminance
+  heightfield relief, for generative art driven by creature artwork.
+- **Compute exact battle stats** — base stats, level, IVs, EVs, and nature run through the same
+  formulas the games use, for competitive team-planning tools.
+- **See a whole team's defensive coverage at a glance** — a per-member x per-type heatmap,
+  team-wide coverage gaps, and a composite vulnerability score, instead of cross-referencing 6
+  type charts by hand.
+- **Get a real render material colored by type** — a Rhino `RenderMaterial` built from canonical
+  type colors, ready to shade a generated model.
 
 Component chains for each of these are in [docs/workflows.md](docs/workflows.md); worked examples
 are in [docs/examples/](docs/examples/).
@@ -107,6 +118,11 @@ Full walkthrough: [docs/quickstart.md](docs/quickstart.md). Common wirings as co
 | Visualization | Stat Mesh 3D | Stat Values, Height Factor, Radius, Max Stat, Center | Mesh, Status | Extruded 3D radar mesh |
 | Display | Type Palette | Type 1, Type 2 | Color 1, Color 2, Blend Color, Status | Dual-type color swatches |
 | Display | Canvas Sprite Card | Name, Stats, Sprite Bitmap, Point, Width, Height | Card Mesh, Label, Card Plane, Sprite Bitmap, Status | Viewport card layout |
+| Display | Rhino Type Material | Type 1, Type 2, Add To Document | Material, Color, Status | Diffuse RenderMaterial from type color(s) |
+| Generative | Evolution Tree | Species Name Or ID, Horizontal/Vertical Spacing, Origin | Node Names, Node Points, Branch Lines, Triggers, Status, Response | Evolution chain as tree geometry |
+| Generative | Sprite To Voxel | Sprite Bitmap, Voxel Size, Alpha Threshold, Heightfield Scale, Max Resolution | Voxel Mesh, Heightfield Mesh, Voxel Count, Status | Voxelizes a sprite into 3D geometry |
+| Generative | Stat Growth | Base Stats, Level, IVs, EVs, Increased/Decreased Stat | Computed Stats, Status | Exact runtime battle stats |
+| Generative | Team Synergy | Names, Type 1s, Type 2s | Member, Attacking Type, Multiplier, Coverage Gaps, Composite Vulnerability, Status | Team defensive heatmap + gaps |
 | Presets | Type Name | (none) | Type Name | Fixed dropdown of the 18 elemental types |
 <!-- pr:end components -->
 

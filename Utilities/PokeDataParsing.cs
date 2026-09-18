@@ -200,6 +200,29 @@ namespace PokeData
             return list;
         }
 
+        // item — v3.0.0: combines up to two independent type defenses into one defensive
+        // multiplier per attacking type (in allTypeNames order). Passing null for the second
+        // type's sets treats it as a single-type Pokemon (multiplier 1.0 contributed). Shared by
+        // ComputeDualTypeDefense's bucketing and Team Synergy's per-member heatmap row.
+        public static double[] ComputeDefenseMultipliers(
+            HashSet<string> doubleFrom1, HashSet<string> halfFrom1, HashSet<string> noFrom1,
+            HashSet<string> doubleFrom2, HashSet<string> halfFrom2, HashSet<string> noFrom2,
+            IReadOnlyList<string> allTypeNames)
+        {
+            var result = new double[allTypeNames?.Count ?? 0];
+            if (allTypeNames == null) return result;
+
+            var emptySet = new HashSet<string>();
+            for (int i = 0; i < allTypeNames.Count; i++)
+            {
+                var attackingType = allTypeNames[i];
+                double m1 = MultiplierFor(doubleFrom1 ?? emptySet, halfFrom1 ?? emptySet, noFrom1 ?? emptySet, attackingType);
+                double m2 = doubleFrom2 == null ? 1.0 : MultiplierFor(doubleFrom2, halfFrom2 ?? emptySet, noFrom2 ?? emptySet, attackingType);
+                result[i] = m1 * m2;
+            }
+            return result;
+        }
+
         // record — v2.1.0: combines two independent type defenses (attacker deals X to this type)
         // into a dual-type defensive multiplier per attacking type, then buckets attacking types
         // by the resulting multiplier (4x/2x/1x/0.5x/0.25x/0x). Passing null for the second type's
@@ -212,11 +235,12 @@ namespace PokeData
         {
             if (allTypeNames == null) return;
 
-            foreach (var attackingType in allTypeNames)
+            var multipliers = ComputeDefenseMultipliers(doubleFrom1, halfFrom1, noFrom1, doubleFrom2, halfFrom2, noFrom2, allTypeNames);
+
+            for (int i = 0; i < allTypeNames.Count; i++)
             {
-                double m1 = MultiplierFor(doubleFrom1 ?? new HashSet<string>(), halfFrom1 ?? new HashSet<string>(), noFrom1 ?? new HashSet<string>(), attackingType);
-                double m2 = doubleFrom2 == null ? 1.0 : MultiplierFor(doubleFrom2, halfFrom2 ?? new HashSet<string>(), noFrom2 ?? new HashSet<string>(), attackingType);
-                double total = m1 * m2;
+                var attackingType = allTypeNames[i];
+                double total = multipliers[i];
 
                 if (total == 0.0) x0.Add(attackingType);
                 else if (total == 0.25) h4.Add(attackingType);
@@ -224,6 +248,177 @@ namespace PokeData
                 else if (total == 1.0) x1.Add(attackingType);
                 else if (total == 2.0) x2.Add(attackingType);
                 else if (total == 4.0) x4.Add(attackingType);
+            }
+        }
+
+        // record — v3.0.0: given each team member's per-attacking-type defense multiplier array
+        // (aligned to allTypeNames, from ComputeDefenseMultipliers), computes team-wide coverage
+        // gaps (an attacking type every member is weak, 2x+, to) and a composite vulnerability
+        // score per attacking type (mean multiplier across the team).
+        public static void ComputeTeamSynergy(
+            IReadOnlyList<double[]> perMemberMultipliers,
+            IReadOnlyList<string> allTypeNames,
+            out List<string> coverageGaps,
+            out List<double> compositeVulnerability)
+        {
+            coverageGaps = new List<string>();
+            compositeVulnerability = new List<double>();
+            if (allTypeNames == null) return;
+
+            for (int t = 0; t < allTypeNames.Count; t++)
+            {
+                double sum = 0.0;
+                bool allWeak = perMemberMultipliers != null && perMemberMultipliers.Count > 0;
+
+                if (perMemberMultipliers != null)
+                {
+                    foreach (var memberMultipliers in perMemberMultipliers)
+                    {
+                        double m = (memberMultipliers != null && t < memberMultipliers.Length) ? memberMultipliers[t] : 1.0;
+                        sum += m;
+                        if (m < 2.0) allWeak = false;
+                    }
+                }
+
+                compositeVulnerability.Add(perMemberMultipliers != null && perMemberMultipliers.Count > 0 ? sum / perMemberMultipliers.Count : 0.0);
+                if (allWeak) coverageGaps.Add(allTypeNames[t]);
+            }
+        }
+
+        // item — v3.0.0: exact HP formula (Generation III+): floor(((2*Base + IV + floor(EV/4)) *
+        // Level) / 100) + Level + 10. Integer division throughout matches in-game truncation.
+        public static int ComputeHpStat(int baseStat, int iv, int ev, int level)
+        {
+            return ((2 * baseStat + iv + ev / 4) * level) / 100 + level + 10;
+        }
+
+        // item — v3.0.0: exact non-HP stat formula (Generation III+): floor((floor(((2*Base + IV +
+        // floor(EV/4)) * Level) / 100) + 5) * NatureMultiplier)
+        public static int ComputeBattleStat(int baseStat, int iv, int ev, int level, double natureMultiplier)
+        {
+            int raw = ((2 * baseStat + iv + ev / 4) * level) / 100 + 5;
+            return (int)(raw * natureMultiplier);
+        }
+
+        // item — v3.0.0: 1.1 if this nature raises statName, 0.9 if it lowers statName, else 1.0.
+        // A nature whose increased/decreased stat are the same (shouldn't happen in real data, but
+        // defensively handled) is treated as neutral, matching in-game behavior for "neutral" natures.
+        public static double NatureMultiplierFor(string increasedStat, string decreasedStat, string statName)
+        {
+            if (string.IsNullOrEmpty(statName)) return 1.0;
+            if (!string.IsNullOrEmpty(increasedStat) && !string.IsNullOrEmpty(decreasedStat) && increasedStat == decreasedStat) return 1.0;
+            if (string.Equals(increasedStat, statName, StringComparison.OrdinalIgnoreCase)) return 1.1;
+            if (string.Equals(decreasedStat, statName, StringComparison.OrdinalIgnoreCase)) return 0.9;
+            return 1.0;
+        }
+
+        // record — v3.0.0: lays out an evolution chain's parent/child/trigger edges (as produced
+        // by FlattenEvolutionChain) as a simple tree: depth by BFS distance from the root, x by
+        // post-order layout (leaves placed left-to-right, each internal node centered over its
+        // children) — pure (x, y) pairs, no Rhino.Geometry reference, so this stays testable.
+        // Node names must be unique within one chain (true for real evolution-chain data).
+        public static void ComputeEvolutionTreeLayout(
+            string rootName,
+            IReadOnlyList<string> parents,
+            IReadOnlyList<string> children,
+            IReadOnlyList<string> triggers,
+            double horizontalSpacing,
+            double verticalSpacing,
+            out List<string> nodeNames,
+            out List<double> nodeX,
+            out List<double> nodeY,
+            out List<int> edgeFromIndex,
+            out List<int> edgeToIndex,
+            out List<string> edgeTriggers)
+        {
+            nodeNames = new List<string>();
+            nodeX = new List<double>();
+            nodeY = new List<double>();
+            edgeFromIndex = new List<int>();
+            edgeToIndex = new List<int>();
+            edgeTriggers = new List<string>();
+
+            if (string.IsNullOrEmpty(rootName)) return;
+
+            var childrenOf = new Dictionary<string, List<int>>();
+            int edgeCount = (parents != null) ? parents.Count : 0;
+            for (int i = 0; i < edgeCount; i++)
+            {
+                var p = parents[i];
+                if (!childrenOf.TryGetValue(p, out var list))
+                {
+                    list = new List<int>();
+                    childrenOf[p] = list;
+                }
+                list.Add(i);
+            }
+
+            nodeNames.Add(rootName);
+            var indexOf = new Dictionary<string, int> { { rootName, 0 } };
+            var depthOf = new Dictionary<string, int> { { rootName, 0 } };
+
+            // BFS to register every node once, assign depth, and record edges by node index
+            var queue = new Queue<string>();
+            queue.Enqueue(rootName);
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                if (!childrenOf.TryGetValue(current, out var edgeIndices)) continue;
+
+                foreach (var edgeIndex in edgeIndices)
+                {
+                    var childName = children[edgeIndex];
+                    if (!indexOf.ContainsKey(childName))
+                    {
+                        indexOf[childName] = nodeNames.Count;
+                        depthOf[childName] = depthOf[current] + 1;
+                        nodeNames.Add(childName);
+                        queue.Enqueue(childName);
+                    }
+
+                    edgeFromIndex.Add(indexOf[current]);
+                    edgeToIndex.Add(indexOf[childName]);
+                    edgeTriggers.Add(triggers != null && edgeIndex < triggers.Count ? triggers[edgeIndex] : "");
+                }
+            }
+
+            // Post-order x layout: leaves get sequential slots, internal nodes center over children
+            var names = nodeNames; // local copy — an `out` parameter can't be captured by the local function below
+            var x = new double[names.Count];
+            var visited = new bool[names.Count];
+            double nextLeafSlot = 0.0;
+
+            void AssignX(int nodeIndex)
+            {
+                if (visited[nodeIndex]) return;
+                visited[nodeIndex] = true;
+
+                var nodeName = names[nodeIndex];
+                if (!childrenOf.TryGetValue(nodeName, out var edgeIndices) || edgeIndices.Count == 0)
+                {
+                    x[nodeIndex] = nextLeafSlot;
+                    nextLeafSlot += horizontalSpacing;
+                    return;
+                }
+
+                double sum = 0.0;
+                int count = 0;
+                foreach (var edgeIndex in edgeIndices)
+                {
+                    var childIndex = indexOf[children[edgeIndex]];
+                    AssignX(childIndex);
+                    sum += x[childIndex];
+                    count++;
+                }
+                x[nodeIndex] = count > 0 ? sum / count : nextLeafSlot;
+            }
+
+            AssignX(0);
+
+            for (int i = 0; i < names.Count; i++)
+            {
+                nodeX.Add(x[i]);
+                nodeY.Add(-depthOf[names[i]] * verticalSpacing);
             }
         }
 
@@ -322,6 +517,20 @@ namespace PokeData
         {
             if (failureCount == 0) return "OK (" + successCount + "/" + successCount + ")";
             return "Partial: " + successCount + " succeeded, " + failureCount + " failed";
+        }
+
+        // item — v3.0.0: perceptual luminance (Rec. 709 coefficients) of an 8-bit RGB triple,
+        // normalized to [0,1] — drives Sprite To Voxel's heightfield relief.
+        public static double Luminance(int r, int g, int b)
+        {
+            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255.0;
+        }
+
+        // item — v3.0.0: whether a pixel counts as "solid" for voxelization, given its alpha and
+        // a threshold (0-255) below which a pixel is treated as background/transparent
+        public static bool IsOpaquePixel(int alpha, int threshold)
+        {
+            return alpha > threshold;
         }
 
         // record — recursively walks an evolution-chain's "chain" node, emitting one edge per step
