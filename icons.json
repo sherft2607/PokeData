@@ -60,6 +60,12 @@
 
     { "name": "TypePalette", "subcategory": "Display", "fg_iconify_id": "mdi:palette" },
     { "name": "CanvasSpriteCard", "subcategory": "Display", "fg_iconify_id": "mdi:card-outline" },
+    { "name": "RhinoTypeMaterial", "subcategory": "Display", "fg_iconify_id": "mdi:cube-scan" },
+
+    { "name": "EvolutionTree", "subcategory": "Generative", "fg_iconify_id": "mdi:family-tree" },
+    { "name": "SpriteToVoxel", "subcategory": "Generative", "fg_iconify_id": "mdi:grain" },
+    { "name": "StatGrowth", "subcategory": "Generative", "fg_iconify_id": "mdi:chart-line" },
+    { "name": "TeamSynergy", "subcategory": "Generative", "fg_iconify_id": "mdi:account-group" },
 
     { "name": "PokemonTypePreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-list-bulleted-type" }
   ]

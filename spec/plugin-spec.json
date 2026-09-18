@@ -515,6 +515,119 @@
             { "name": "Sprite Bitmap", "nickname": "B", "type": "generic", "access": "item" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
           ]
+        },
+        {
+          "class_name": "RhinoTypeMaterialComponent",
+          "file_name": "RhinoTypeMaterial.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v3.0.0: canonical type-color materials for render/viewport pipelines, alongside Type Palette's flat color swatches",
+          "note": "Not a PokeAPI endpoint — pure lookup/blend over PluginUtilities.TypeColor/BlendColors, wrapped as a Rhino.DocObjects.Material -> its .RenderMaterial property (avoids the more version-sensitive Rhino.Render.RenderContentType APIs, so this stays stable across the Rhino 7/8 RhinoCommon versions this plugin multi-targets). Scoped to a simple diffuse material per user direction — no artwork color clustering.",
+          "inputs": [
+            { "name": "Type 1", "nickname": "T1", "type": "string", "access": "item", "default": "" },
+            { "name": "Type 2", "nickname": "T2", "type": "string", "access": "item", "default": "" },
+            { "name": "Add To Document", "nickname": "AD", "type": "boolean", "access": "item", "default": false }
+          ],
+          "outputs": [
+            { "name": "Material", "nickname": "M", "type": "generic", "access": "item" },
+            { "name": "Color", "nickname": "C", "type": "colour", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Generative",
+      "type": "util",
+      "components": [
+        {
+          "class_name": "EvolutionTreeComponent",
+          "file_name": "EvolutionTree.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "pokemon_species_read + evolution_chain_read",
+          "workflow": "v3.0.0: topological graph — an evolution chain as placed tree geometry, not just flattened edges",
+          "note": "Same two-call resolution as Get Evolution Chain (species -> evolution_chain URL -> chain fetch); no new extraction needed. Layout is pure math (PokeDataParsing.ComputeEvolutionTreeLayout: BFS depth + post-order x-centering, no Rhino.Geometry reference, testable) — the component converts (x,y) pairs to Point3d/Line.",
+          "inputs": [
+            { "name": "Species Name Or ID", "nickname": "SP", "type": "string", "access": "item", "default": "" },
+            { "name": "Horizontal Spacing", "nickname": "HS", "type": "number", "access": "item", "default": 10.0 },
+            { "name": "Vertical Spacing", "nickname": "VS", "type": "number", "access": "item", "default": 10.0 },
+            { "name": "Origin", "nickname": "O", "type": "point", "access": "item", "default": "origin" }
+          ],
+          "outputs": [
+            { "name": "Node Names", "nickname": "N", "type": "string", "access": "list" },
+            { "name": "Node Points", "nickname": "P", "type": "point", "access": "list" },
+            { "name": "Branch Lines", "nickname": "B", "type": "line", "access": "list" },
+            { "name": "Triggers", "nickname": "TR", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "SpriteToVoxelComponent",
+          "file_name": "SpriteToVoxel.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v3.0.0: mesh generation — a sprite Bitmap voxelized into a colored box mesh plus a luminance heightfield",
+          "note": "Not a PokeAPI endpoint — operates on an in-memory Bitmap (e.g. Sprite Downloader's output). Per-pixel Rhino.Geometry mesh building lives in the component; PokeDataParsing.Luminance/IsOpaquePixel are the pure, testable pieces. Downsamples to Max Resolution first so official artwork (475x475+) doesn't produce an unusably large mesh.",
+          "inputs": [
+            { "name": "Sprite Bitmap", "nickname": "B", "type": "generic", "access": "item" },
+            { "name": "Voxel Size", "nickname": "VS", "type": "number", "access": "item", "default": 1.0 },
+            { "name": "Alpha Threshold", "nickname": "AT", "type": "integer", "access": "item", "default": 10 },
+            { "name": "Heightfield Scale", "nickname": "HS", "type": "number", "access": "item", "default": 5.0 },
+            { "name": "Max Resolution", "nickname": "MR", "type": "integer", "access": "item", "default": 64 }
+          ],
+          "outputs": [
+            { "name": "Voxel Mesh", "nickname": "VM", "type": "mesh", "access": "item" },
+            { "name": "Heightfield Mesh", "nickname": "HM", "type": "mesh", "access": "item" },
+            { "name": "Voxel Count", "nickname": "VC", "type": "integer", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "StatGrowthComponent",
+          "file_name": "StatGrowth.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": null,
+          "workflow": "v3.0.0: parametric math — exact runtime battle stats from base stats/level/IVs/EVs/nature",
+          "note": "Not a PokeAPI endpoint — pure Generation III+ stat formulas (PokeDataParsing.ComputeHpStat/ComputeBattleStat/NatureMultiplierFor), fully unit tested. Feeds from Get Pokemon's Stat Values and Get Nature's Increased/Decreased Stat outputs.",
+          "inputs": [
+            { "name": "Base Stats", "nickname": "BS", "type": "integer", "access": "list", "default": "" },
+            { "name": "Level", "nickname": "L", "type": "integer", "access": "item", "default": 50 },
+            { "name": "IVs", "nickname": "IV", "type": "integer", "access": "list", "default": "" },
+            { "name": "EVs", "nickname": "EV", "type": "integer", "access": "list", "default": "" },
+            { "name": "Increased Stat", "nickname": "IS", "type": "string", "access": "item", "default": "" },
+            { "name": "Decreased Stat", "nickname": "DS", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Computed Stats", "nickname": "CS", "type": "integer", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "TeamSynergyComponent",
+          "file_name": "TeamSynergy.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "type_read",
+          "workflow": "v3.0.0: battle optimization — a full team's defensive heatmap, coverage gaps, and composite vulnerability across all 18 types",
+          "note": "Reuses type_read once per distinct type across the team (cached, so a team with repeated types doesn't refetch); no new extraction needed. Input shape is parallel Names/Type 1s/Type 2s lists (1-6 members), matching Pokemon Filter's parallel-list convention rather than inventing a Pokemon struct. Heatmap flattens to 3 parallel lists (Member/Attacking Type/Multiplier), same convention as Get Type Matrix's AT/DT/M. Math (PokeDataParsing.ComputeDefenseMultipliers/ComputeTeamSynergy) is pure and shared with Dual Type Matchup.",
+          "inputs": [
+            { "name": "Names", "nickname": "N", "type": "string", "access": "list", "default": "" },
+            { "name": "Type 1s", "nickname": "T1", "type": "string", "access": "list", "default": "" },
+            { "name": "Type 2s", "nickname": "T2", "type": "string", "access": "list", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Member", "nickname": "M", "type": "string", "access": "list" },
+            { "name": "Attacking Type", "nickname": "AT", "type": "string", "access": "list" },
+            { "name": "Multiplier", "nickname": "MU", "type": "number", "access": "list" },
+            { "name": "Coverage Gaps", "nickname": "CG", "type": "string", "access": "list" },
+            { "name": "Composite Vulnerability", "nickname": "CV", "type": "number", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
         }
       ]
     },

@@ -90,6 +90,41 @@
       "data_shape": "stat values -> Mesh; 2 types -> 3 colors; parallel name/value lists -> filtered subset; name+stats+bitmap+point -> card Mesh+label+plane",
       "varies_per_item": true,
       "benchmark": null
+    },
+    {
+      "name": "v3.0.0: evolution chain as topological graph",
+      "user_goal": "See a species' evolution chain as actual placed tree geometry (points + branch lines), not just flattened parent/child/trigger edges, for a parametric branching-diagram layout computed automatically instead of hand-positioned",
+      "data_shape": "species -> N tree node points + tree edge lines + parallel trigger labels",
+      "varies_per_item": true,
+      "benchmark": null
+    },
+    {
+      "name": "v3.0.0: sprite voxelization and mesh generation",
+      "user_goal": "Turn a Pokemon's sprite image into real 3D geometry (a voxel box mesh with per-pixel color, plus a luminance heightfield) for generative/parametric art pieces driven by creature artwork",
+      "data_shape": "sprite Bitmap -> voxel box Mesh (RGBA vertex colors) + heightfield Mesh",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v3.0.0: exact battle stat calculation",
+      "user_goal": "Compute a Pokemon's exact runtime battle stats from base stats, level, IVs, EVs, and nature — the same formulas the games use — for competitive team-planning tools instead of eyeballing stat ranges",
+      "data_shape": "6 base stats + level + 6 IVs + 6 EVs + nature -> 6 computed stats",
+      "varies_per_item": false,
+      "benchmark": null
+    },
+    {
+      "name": "v3.0.0: team defensive synergy / battle optimization",
+      "user_goal": "See a full 1-6 Pokemon team's defensive coverage at a glance — a per-member x per-type heatmap, which attacking types the whole team is weak to (coverage gaps), and a composite vulnerability score per type — instead of manually cross-referencing 6 type charts",
+      "data_shape": "team names + type1s + type2s -> (members x 18) heatmap + coverage-gap list + 18 composite scores",
+      "varies_per_item": true,
+      "benchmark": null
+    },
+    {
+      "name": "v3.0.0: canonical type render materials",
+      "user_goal": "Get a real Rhino render material colored by a Pokemon's type(s), so a generated model can be rendered/viewport-shaded by type without the user manually building a material",
+      "data_shape": "1-2 types -> 1 RenderMaterial + its diffuse Color",
+      "varies_per_item": false,
+      "benchmark": null
     }
   ]
 }

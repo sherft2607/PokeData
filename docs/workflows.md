@@ -29,3 +29,13 @@ What you can do with PokeData:
   for real-world-scale parametric geometry (v2.0.0)
 - Extrude base stats into a solid 3D radar mesh, get dual-type color swatches, or lay out a
   sprite + stats as a viewport "trading card" (v2.0.0)
+- See a species' evolution chain as actual placed tree geometry — points and branch lines laid
+  out automatically — instead of flattened edges you position by hand (v3.0.0)
+- Turn a sprite image into real 3D geometry: a voxel box mesh with per-pixel color, or a
+  luminance heightfield relief, for generative art driven by creature artwork (v3.0.0)
+- Compute a Pokemon's exact runtime battle stats from base stats/level/IVs/EVs/nature — the same
+  formulas the games use — for competitive team-planning tools (v3.0.0)
+- See a full 1-6 Pokemon team's defensive coverage at a glance: a per-member x per-type heatmap,
+  team-wide coverage gaps, and a composite vulnerability score per type (v3.0.0)
+- Get a real Rhino render material colored by a Pokemon's type(s), for render/viewport-shading
+  a generated model by type (v3.0.0)

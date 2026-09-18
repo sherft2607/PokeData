@@ -2,15 +2,15 @@
 
 Look up Pokemon, types, evolution chains, moves, abilities, items, and natures from
 [PokeAPI](https://pokeapi.co) directly on the Grasshopper canvas — with audio cries, type
-matchups, real-world scale geometry, and parametric stat radar/mesh visuals — no auth required,
-since PokeAPI is fully public.
+matchups, generative computational geometry, topological evolution graphs, and battle-optimization
+solvers — no auth required, since PokeAPI is fully public.
 
-- **Version:** 2.0.0
+- **Version:** 3.0.0
 - **License:** MIT
 - **GitHub:** https://github.com/sherft2607/PokeData
 - **Food4Rhino:** _(pending listing)_
 - **Released:** 2026-09-17 — [v1.0.0](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0)
-  · v2.0.0 pending tag + push
+  · [v2.0.0](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) · v3.0.0 pending tag + push
 
 ## Install
 
@@ -29,8 +29,9 @@ Search "PokeData" in Rhino's `_PackageManager`.
 | Data | Get Generation, Pokemon Filter |
 | Geometry | Pokemon Dimensions |
 | Visualization | Stat Radar, Stat Mesh 3D |
-| Display | Type Palette, Canvas Sprite Card |
+| Display | Type Palette, Canvas Sprite Card, Rhino Type Material |
+| Generative | Evolution Tree, Sprite To Voxel, Stat Growth, Team Synergy |
 | Presets | Type Name |
 
-23 components across 11 tabs. No Auth tab and no `Token` input on any component — PokeAPI needs
+28 components across 12 tabs. No Auth tab and no `Token` input on any component — PokeAPI needs
 no credentials.

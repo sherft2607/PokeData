@@ -141,3 +141,35 @@ Note: Gate 5 (auth test in Rhino) is skipped for this build — there is no Auth
 [ ] README.md / CLAUDE.md regenerated for v2.1.0
 [ ] /rest-package rebuild for v2.1.0 (3 .yak in dist/)
 [ ] git commit + tag + push (user's call)
+
+## v3.0.0 extend round (rest-add-feature — generative geometry / battle optimization)
+
+[x] EvolutionTree.cs             [BUILD] new Generative tab — tree layout points+lines+triggers
+[x] SpriteToVoxel.cs             [BUILD] Generative tab — voxel box mesh + luminance heightfield
+[x] StatGrowth.cs                [BUILD] Generative tab — exact battle stat formulas
+[x] TeamSynergy.cs               [BUILD] Generative tab — 6x18 heatmap + coverage gaps
+[x] RhinoTypeMaterial.cs         [BUILD] Display tab — simple diffuse RenderMaterial
+[x] PokeDataParsing.cs           [BUILD] +ComputeDefenseMultipliers (shared refactor),
+    +ComputeTeamSynergy, +ComputeHpStat/ComputeBattleStat/NatureMultiplierFor,
+    +ComputeEvolutionTreeLayout, +Luminance/IsOpaquePixel
+[x] PluginUtilities.cs           [BUILD] +Generative category (13 tabs total)
+[x] icons.json + Icons/*.png     [MCP]   5 new icons rendered + embedded, user-approved
+[x] PokeData.Tests/ParsingTests.cs [BUILD] +30 tests for new pure-logic helpers (106/106 passing)
+[x] dotnet build x 3 targets     [BUILD] net48 / net7.0-windows / net7.0 all green
+    (RenderMaterial API confirmed compiling on all 3 targets, incl. net7.0 Mac target)
+[x] PokeData.csproj / manifest.yml Version -> 3.0.0
+[ ] docs/ incremental update for v3.0.0
+[ ] README.md / CLAUDE.md regenerated for v3.0.0
+[ ] demos/README.md v3.0.0 additions + Gate 6 live re-test (pending, no Grasshopper MCP bridge)
+[ ] /rest-package rebuild for v3.0.0 (3 .yak in dist/)
+[ ] git commit + tag v3.0.0 + push (user's call)
+
+## v3.0.0 post-round fix
+
+[x] Components/Generative/SpriteToVoxel.cs [FIX] Sprite Bitmap input wasn't unwrapping
+    GH_ObjectWrapper before casting to Bitmap (generic params box non-IGH_Goo values;
+    DA.GetData(ref object) doesn't auto-unwrap) — always read as null, threw "Sprite Bitmap is
+    empty or not a Bitmap." on any real wired input. Fixed by checking for
+    Grasshopper.Kernel.Types.GH_ObjectWrapper and reading .Value first. Verified Sprite
+    Downloader (producer) and Canvas Sprite Card (untouched passthrough) were already correct.
+    Rebuilt + tested all 3 targets, 106/106 unit tests still passing (no pure-logic change).

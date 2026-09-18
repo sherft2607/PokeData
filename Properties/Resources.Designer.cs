@@ -291,5 +291,55 @@ namespace PokeData.Properties
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PK_RhinoTypeMaterial {
+            get {
+                object obj = ResourceManager.GetObject("PK_RhinoTypeMaterial", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PK_EvolutionTree {
+            get {
+                object obj = ResourceManager.GetObject("PK_EvolutionTree", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PK_SpriteToVoxel {
+            get {
+                object obj = ResourceManager.GetObject("PK_SpriteToVoxel", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PK_StatGrowth {
+            get {
+                object obj = ResourceManager.GetObject("PK_StatGrowth", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PK_TeamSynergy {
+            get {
+                object obj = ResourceManager.GetObject("PK_TeamSynergy", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

@@ -14,22 +14,26 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
 <!-- pr:begin state -->
 ## Current build state
 
-- Phase: 15 of 15 — Package + Ship (v2.0.0 round in progress)
+- Phase: 15 of 15 — Package + Ship (v3.0.0 round in progress)
 - Gates passed: 1 (API overview), 2 (structure), 3 (AEC features — none), 4 (auto-cleared — 0
   FAILED/PARTIAL calls), 5 (auto-cleared — no auth to test), 6 (manual live test — initial build,
-  extend-round-1 Batch 1, v2.0.0 re-test pending on the plugin author's machine — no Grasshopper
-  MCP bridge in the building sandbox)
+  extend-round-1 Batch 1; v2.0.0 shipped as a tagged release, cross-platform Gate 6 re-test still
+  outstanding; v3.0.0 re-test also pending, same no-bridge constraint)
+- v2.0.0 shipped: tagged and pushed (`v2.0.0`), `publish.yml` fired to build the Release
 - Extend rounds: round 1 / Batch 1 — added cries outputs to Get Pokemon, Associated Pokemon output
   to Get Type, new Get Pokemon Species and Sprite Downloader components. v2.0.0 round (2 batches,
-  same unreleased version — batch 2 expanded scope before the first v2.0.0 tag) — batch 1: Pokemon
-  Cry, Type Matchup, Stat Radar (new Visualization tab); Get Move +Priority/Description, Get
-  Ability +Short Effect, Get Type +Color. Batch 2 (10 components): Get Generation + Pokemon Filter
-  (new Data tab), Get Item (new Items tab), Get Nature (new Stats tab), Pokemon Dimensions (new
-  Geometry tab), Dual Type Matchup (Types tab), Stat Mesh 3D (Visualization tab), Type Palette +
-  Canvas Sprite Card (new Display tab), Batch Downloader (Pokemon tab) — 3 new endpoints
-  (generation/item/nature) validated live against pokeapi.co this session
+  shipped as one release) — batch 1: Pokemon Cry, Type Matchup, Stat Radar (new Visualization
+  tab); Get Move +Priority/Description, Get Ability +Short Effect, Get Type +Color. Batch 2 (10
+  components): Get Generation + Pokemon Filter (new Data tab), Get Item (new Items tab), Get
+  Nature (new Stats tab), Pokemon Dimensions (new Geometry tab), Dual Type Matchup (Types tab),
+  Stat Mesh 3D (Visualization tab), Type Palette + Canvas Sprite Card (new Display tab), Batch
+  Downloader (Pokemon tab) — 3 new endpoints (generation/item/nature) validated live against
+  pokeapi.co. v3.0.0 round (5 components, focused on generative geometry / battle optimization) —
+  new Generative tab: Evolution Tree, Sprite To Voxel, Stat Growth, Team Synergy; Display tab
+  gained Rhino Type Material. No new endpoints — reuses pokemon-species_read/evolution-chain_read
+  (Evolution Tree) and type_read (Team Synergy); the rest are pure math/geometry.
 - Pre-1.0.0 retrofit: session stamped `please_rest_version` (was missing/pre-1.0.0); Release
-  `PropertyGroup` confirmed present; `.yak` packaging to be re-verified for all 3 targets
+  `PropertyGroup` confirmed present; `.yak` packaging re-verified for all 3 targets each round
 - Last active: 2026-09-18
 <!-- pr:end state -->
 
@@ -53,7 +57,7 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
 <!-- pr:begin structure -->
 ## Plugin structure
 
-12 subcategories, 23 components. No Auth tab, no JSON Builders folder (no request bodies — every
+13 subcategories, 28 components. No Auth tab, no JSON Builders folder (no request bodies — every
 endpoint is a plain GET), no ButtonComponent.
 
 - **Pokemon** — Get Pokemon, Get Pokemon Batch, Get Pokemon Species, Sprite Downloader, Pokemon Cry, Batch Downloader
@@ -65,7 +69,8 @@ endpoint is a plain GET), no ButtonComponent.
 - **Data** — Get Generation, Pokemon Filter
 - **Geometry** — Pokemon Dimensions
 - **Visualization** — Stat Radar, Stat Mesh 3D
-- **Display** — Type Palette, Canvas Sprite Card
+- **Display** — Type Palette, Canvas Sprite Card, Rhino Type Material
+- **Generative** — Evolution Tree, Sprite To Voxel, Stat Growth, Team Synergy
 - **Presets** — Type Name (`PokemonTypePresetComponent`)
 - **Utilities** — `PokeDataClient.cs`, `PluginUtilities.cs`, `PokeDataParsing.cs`
 
@@ -137,6 +142,39 @@ None. PokeAPI has no write endpoints, so there are no request bodies to construc
 - **`Stat Mesh 3D` uses a fixed-radius ring** (`ComputeRegularPolygonPoints`), unlike `Stat
   Radar`'s per-vertex radius (`ComputeStatRadarPoints`) — only the extrusion height encodes each
   stat, so the base silhouette stays a clean regular polygon at any stat distribution.
+- **`ComputeDualTypeDefense` was refactored to share `ComputeDefenseMultipliers`** with `Team
+  Synergy` (v3.0.0) — same per-attacking-type multiplier math, extracted once both components
+  needed it. All pre-existing `ComputeDualTypeDefense` tests still pass unchanged, confirming the
+  refactor preserved behavior.
+- **`Team Synergy` uses parallel Names/Type 1s/Type 2s lists**, not a `Pokemon` struct — there is
+  still no such type in this codebase (same gap `Pokemon Filter` hit in v2.0.0), and the parallel-
+  list convention is already established, so this follows it rather than introducing a new shape.
+- **`Evolution Tree`'s layout is pure math** (`ComputeEvolutionTreeLayout`: BFS for depth,
+  post-order for x-centering) with no `Rhino.Geometry` reference, so it's tested the same way as
+  `ComputeStatRadarPoints` — the component itself only converts `(x, y)` pairs to `Point3d`/`Line`.
+- **`Sprite To Voxel` downsamples before voxelizing** (`Max Resolution`, default 64) — official
+  artwork sprites can be 475x475+ pixels, and one box per pixel at that resolution would produce
+  an unusably large mesh; only `Luminance`/`IsOpaquePixel` are pure/tested, the per-pixel mesh
+  construction itself lives in the component (same split as `Stat Mesh 3D`).
+- **`Rhino Type Material` builds via `Rhino.DocObjects.Material` → its `.RenderMaterial`
+  property**, not the `Rhino.Render.RenderContentType` content-type APIs — deliberately, per the
+  plugin author's direction, to avoid the more version-sensitive render-content surface across
+  the Rhino 7/8 RhinoCommon versions this plugin multi-targets. Confirmed compiling on net48,
+  net7.0-windows, and net7.0 (the Mac target) without conditional compilation.
+- **Stat formulas (`ComputeHpStat`/`ComputeBattleStat`) use integer division throughout**, matching
+  the games' truncation (not rounding) at every intermediate step — computing the final result in
+  floating point and truncating once would give the wrong answer for some base-stat/IV/EV
+  combinations.
+- **A generic input param delivers `GH_ObjectWrapper`, not the raw .NET object** — bug fix:
+  `Sprite To Voxel`'s `Sprite Bitmap` input originally did `bitmapObj as Bitmap` directly on the
+  value `DA.GetData(ref object)` returned, which is always null for a wired connection because
+  Grasshopper boxes a non-`IGH_Goo` value (like `System.Drawing.Bitmap`) in a `GH_ObjectWrapper`
+  on the way through a generic param, and `DA.GetData` does not auto-unwrap for a plain `object`
+  target the way it does for typed Goo access. Fixed by checking for
+  `Grasshopper.Kernel.Types.GH_ObjectWrapper` first and reading `.Value` before falling back to a
+  direct cast. `Sprite Downloader` (the producer) and `Canvas Sprite Card` (which only passes the
+  Bitmap through untouched, never casts it) were both already correct — this was specific to a
+  consumer that needs to use the Bitmap's actual pixels.
 <!-- pr:end decisions -->
 
 <!-- pr:begin limitations -->
@@ -154,9 +192,10 @@ None. PokeAPI has no write endpoints, so there are no request bodies to construc
 - **This session's sandbox could not reach `pokeapi.co`** (TLS handshake reset — see `dogfood/`
   F5), so Phase 7 (API testing) was completed via the plugin author's manual verification against
   the live API instead of the automated `pr-api-tester` run.
-- **v2.0.0's Gate 6 re-test is pending on the plugin author's machine** — same no-bridge
-  constraint as the original build; `demos/README.md`'s "v2.0.0 additions" section holds the
-  manual check steps, now covering all 16 new/changed components across both batches.
+- **Gate 6 live re-tests are pending on the plugin author's machine** — same no-bridge constraint
+  as the original build; `demos/README.md`'s "v2.0.0 additions"/"v2.0.0 batch 2 additions"
+  sections cover the 16 v2.0.0 components, and a "v3.0.0 additions" section (once added) will
+  cover the 5 new v3.0.0 components — none of this has been confirmed live in Rhino yet.
 <!-- pr:end limitations -->
 
 <!-- pr:begin todo -->

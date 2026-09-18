@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.0.0 — 2026-09-18
+
+[GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) (v2.0.0, most recent tagged)
+
+- New **Generative** tab, focused on generative computational geometry, topological networks,
+  and battle-optimization solvers:
+  - **Evolution Tree** — an evolution chain laid out as actual tree geometry (points + branch
+    lines + trigger metadata), not just flattened edges.
+  - **Sprite To Voxel** — voxelizes a sprite Bitmap into a colored box mesh plus a separate
+    luminance heightfield relief mesh.
+  - **Stat Growth** — exact Generation III+ runtime battle stat formulas from base
+    stats/level/IVs/EVs/nature.
+  - **Team Synergy** — a 1-6 member team's defensive heatmap (member x 18 attacking types),
+    coverage gaps, and composite vulnerability score.
+- **Display** tab gained **Rhino Type Material** — a simple diffuse `Rhino.Render.RenderMaterial`
+  built from canonical type color(s), confirmed compiling across all 3 targets including the
+  Mac (net7.0) build.
+- `PokeDataParsing.ComputeDualTypeDefense` refactored to share a new
+  `ComputeDefenseMultipliers` helper with Team Synergy — same math, no behavior change (all
+  existing tests still pass).
+- 30 new unit tests (106/106 total).
+
 ## 2.0.0 — 2026-09-18
 
 - New **Pokemon Cry** component (Pokemon tab) — cry audio URLs plus an in-memory-download,

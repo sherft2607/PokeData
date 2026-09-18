@@ -1,8 +1,8 @@
 name: pokedata
-version: 2.0.0
+version: 3.0.0
 authors:
   - Shandon Herft
-description: "Look up Pokemon, types, evolution chains, moves and abilities from PokeAPI directly on the Grasshopper canvas — with audio cries, type matchups, and parametric stat radar visuals."
+description: "Look up Pokemon, types, evolution chains, moves and abilities from PokeAPI directly on the Grasshopper canvas — with audio cries, type matchups, generative geometry, and battle-optimization solvers."
 url: https://github.com/sherft2607/PokeData
 keywords:
   - grasshopper

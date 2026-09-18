@@ -186,3 +186,26 @@ all with `Parent Species` = `eevee`.)
 - **Batch Downloader** (new, Pokemon tab) — wire 2-3 sprite URLs (e.g. from `Get Pokemon Batch`)
   into `URLs`, `Trigger` = `false` first (`Bitmaps` empty, `Status` = `"Waiting for trigger."`),
   then `Trigger` = `true`: `Bitmaps` has one decoded image per URL, `Status` = `"OK (n/n)"`.
+
+## v3.0.0 additions (Generative tab + Rhino Type Material)
+
+- **Evolution Tree** (new, Generative tab) — `Species Name Or ID` = `"bulbasaur"`: `Status` = `OK`,
+  `Node Names` = `[bulbasaur, ivysaur, venusaur]`, `Node Points` has 3 points with increasing
+  (more negative) Y per generation, `Branch Lines` has 2 lines, `Triggers` = `[level-up, level-up]`.
+  Second check with `"eevee"`: 9 nodes, 8 branch lines fanning out from eevee at even X spacing.
+- **Sprite To Voxel** (new, Generative tab) — wire `Sprite Downloader`'s `Bitmap` output (for
+  `pikachu`'s front sprite) into `Sprite Bitmap`, leave other inputs at defaults: `Status` = `OK`,
+  `Voxel Mesh` renders as a blocky 3D silhouette of the sprite in the viewport, `Voxel Count` > 0,
+  `Heightfield Mesh` renders as a relief grid.
+- **Stat Growth** (new, Generative tab) — wire `Get Pokemon`'s `Stat Values` (for `pikachu`) into
+  `Base Stats`, `Level` = `50`, leave IVs/EVs empty (defaults to 31/0), `Increased Stat` = `"speed"`,
+  `Decreased Stat` = `"attack"`: `Status` = `OK`, `Computed Stats` has 6 values, the speed entry
+  higher than attack relative to their base-stat ratio (nature applied correctly).
+- **Team Synergy** (new, Generative tab) — `Names` = `["Charizard", "Blastoise"]`, `Type 1s` =
+  `["fire", "water"]`, `Type 2s` = `["flying", ""]`: `Status` = `OK`, `Member`/`Attacking Type`/
+  `Multiplier` each have 36 rows (2 members x 18 types), `Coverage Gaps` should be empty for this
+  pair (their types don't share a common double weakness), `Composite Vulnerability` has 18 values.
+- **Rhino Type Material** (new, Display tab) — `Type 1` = `"electric"`, `Add To Document` = `false`:
+  `Status` = `OK`, `Material` is a non-null generic output, `Color` a yellow swatch. Then
+  `Add To Document` = `true` with a Rhino document open: confirm a new "PokeData electric" material
+  appears in Rhino's Materials panel.
