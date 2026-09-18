@@ -16,6 +16,7 @@ Looks up an ability's introducing generation and effect text.
 | Effect Text | text | Short English effect description |
 | Status | text | Success or error status |
 | Response | text | Raw JSON response |
+| Short Effect | text (list) | One short effect description per available language (v2.0.0) |
 
 ## API endpoint
 

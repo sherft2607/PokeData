@@ -30,6 +30,9 @@ namespace PokeData
             pManager.AddTextParameter("Effect Text", "E", "Short English effect description.", GH_ParamAccess.item);
             pManager.AddTextParameter("Status", "S", "Success or error status.", GH_ParamAccess.item);
             pManager.AddTextParameter("Response", "R", "Raw JSON response.", GH_ParamAccess.item);
+            // v2.0.0: appended at the end so existing output indices (0-7) are unchanged
+            pManager.AddIntegerParameter("Priority", "PR", "Move priority bracket (can be negative, e.g. -6 for Trick Room).", GH_ParamAccess.item);
+            pManager.AddTextParameter("Description", "D", "One flavor-text description per available language.", GH_ParamAccess.list);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -67,14 +70,16 @@ namespace PokeData
                     "Response was not JSON: " + (json.Length > 200 ? json.Substring(0, 200) + "…" : json));
             }
 
-            int power = 0, accuracy = 0, pp = 0;
+            int power = 0, accuracy = 0, pp = 0, priority = 0;
             string damageClass = "", type = "", effectText = "";
+            var descriptions = new System.Collections.Generic.List<string>();
 
             if (parsed != null)
             {
                 power = (int?)parsed["power"] ?? 0;
                 accuracy = (int?)parsed["accuracy"] ?? 0;
                 pp = (int?)parsed["pp"] ?? 0;
+                priority = (int?)parsed["priority"] ?? 0;
                 damageClass = PokeDataParsing.SafeString(parsed, "damage_class", "name");
                 type = PokeDataParsing.SafeString(parsed, "type", "name");
 
@@ -90,6 +95,8 @@ namespace PokeData
                         }
                     }
                 }
+
+                PokeDataParsing.ParseLocalizedEntries(parsed["flavor_text_entries"] as JArray, "flavor_text", out _, out descriptions);
             }
 
             // 5. DA.SetData calls
@@ -101,6 +108,8 @@ namespace PokeData
             DA.SetData(5, effectText);
             DA.SetData(6, "OK");
             DA.SetData(7, json);
+            DA.SetData(8, priority);
+            DA.SetDataList(9, descriptions);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.PK_GetMove;

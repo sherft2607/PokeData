@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
@@ -132,6 +133,195 @@ namespace PokeData
                 var baseStat = SafeChild(s, "base_stat");
                 values.Add(baseStat != null && baseStat.Type != JTokenType.Null ? (int)baseStat : 0);
             }
+        }
+
+        // record — v2.0.0: collects the first localized text entry per distinct language from an
+        // entries array shaped [{ <textKey>: "...", language: { name: "en" } }, ...]
+        // (move "flavor_text_entries"/"flavor_text", ability "effect_entries"/"short_effect") —
+        // first entry per language wins, so a per-version-group array like flavor_text_entries
+        // still yields one row per language rather than one per version
+        public static void ParseLocalizedEntries(JArray entries, string textKey, out List<string> languages, out List<string> texts)
+        {
+            languages = new List<string>();
+            texts = new List<string>();
+            if (entries == null) return;
+
+            var seen = new HashSet<string>();
+            foreach (var entry in entries)
+            {
+                string lang = SafeString(entry, "language", "name");
+                if (string.IsNullOrEmpty(lang) || !seen.Add(lang)) continue;
+                languages.Add(lang);
+                texts.Add(SafeString(entry, textKey));
+            }
+        }
+
+        // record — v2.0.0: normalizes stat values onto a 2D radar/spider polygon, one vertex per
+        // stat, evenly spaced starting at 12 o'clock and going clockwise. Pure math (no
+        // Rhino.Geometry reference) so this stays testable in the plain net8.0 test project;
+        // the component converts (x, y) pairs to Point3d.
+        public static void ComputeStatRadarPoints(IReadOnlyList<int> statValues, double radius, double maxStat, out List<double> x, out List<double> y)
+        {
+            x = new List<double>();
+            y = new List<double>();
+            if (statValues == null || statValues.Count == 0 || maxStat <= 0) return;
+
+            int n = statValues.Count;
+            for (int i = 0; i < n; i++)
+            {
+                double normalized = Math.Max(0.0, Math.Min(1.0, statValues[i] / maxStat));
+                double r = normalized * radius;
+                double angle = -Math.PI / 2 + (2 * Math.PI * i / n);
+                x.Add(r * Math.Cos(angle));
+                y.Add(r * Math.Sin(angle));
+            }
+        }
+
+        // item — v2.1.0: extracts the trailing numeric ID from a PokeAPI resource URL,
+        // e.g. "https://pokeapi.co/api/v2/pokemon-species/1/" -> 1. Malformed/non-numeric -> 0.
+        public static int ExtractIdFromUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return 0;
+            var trimmed = url.TrimEnd('/');
+            var idx = trimmed.LastIndexOf('/');
+            if (idx < 0 || idx == trimmed.Length - 1) return 0;
+            var idPart = trimmed.Substring(idx + 1);
+            return int.TryParse(idPart, out var id) ? id : 0;
+        }
+
+        // record — v2.1.0: extracts the trailing numeric ID from every {..., url} entry in an
+        // array (e.g. generation's "pokemon_species"), in order
+        public static List<int> ExtractIdsFromUrls(JArray array, string urlKey = "url")
+        {
+            var list = new List<int>();
+            if (array == null) return list;
+            foreach (var item in array)
+                list.Add(ExtractIdFromUrl(SafeString(item, urlKey)));
+            return list;
+        }
+
+        // record — v2.1.0: combines two independent type defenses (attacker deals X to this type)
+        // into a dual-type defensive multiplier per attacking type, then buckets attacking types
+        // by the resulting multiplier (4x/2x/1x/0.5x/0.25x/0x). Passing null for the second type's
+        // sets treats it as a single-type Pokemon (multiplier 1.0 contributed).
+        public static void ComputeDualTypeDefense(
+            HashSet<string> doubleFrom1, HashSet<string> halfFrom1, HashSet<string> noFrom1,
+            HashSet<string> doubleFrom2, HashSet<string> halfFrom2, HashSet<string> noFrom2,
+            IReadOnlyList<string> allTypeNames,
+            List<string> x4, List<string> x2, List<string> x1, List<string> h2, List<string> h4, List<string> x0)
+        {
+            if (allTypeNames == null) return;
+
+            foreach (var attackingType in allTypeNames)
+            {
+                double m1 = MultiplierFor(doubleFrom1 ?? new HashSet<string>(), halfFrom1 ?? new HashSet<string>(), noFrom1 ?? new HashSet<string>(), attackingType);
+                double m2 = doubleFrom2 == null ? 1.0 : MultiplierFor(doubleFrom2, halfFrom2 ?? new HashSet<string>(), noFrom2 ?? new HashSet<string>(), attackingType);
+                double total = m1 * m2;
+
+                if (total == 0.0) x0.Add(attackingType);
+                else if (total == 0.25) h4.Add(attackingType);
+                else if (total == 0.5) h2.Add(attackingType);
+                else if (total == 1.0) x1.Add(attackingType);
+                else if (total == 2.0) x2.Add(attackingType);
+                else if (total == 4.0) x4.Add(attackingType);
+            }
+        }
+
+        // item — v2.1.0: PokeAPI height (decimetres) / weight (hectograms) -> metric + imperial
+        public static void ConvertDimensions(double heightDecimetres, double weightHectograms,
+            out double heightMeters, out double heightFeet, out double weightKg, out double weightLb)
+        {
+            heightMeters = heightDecimetres * 0.1;
+            heightFeet = heightMeters * 3.28084;
+            weightKg = weightHectograms * 0.1;
+            weightLb = weightKg * 2.20462;
+        }
+
+        // record — v2.1.0: evenly-spaced points on a fixed-radius regular polygon (unlike
+        // ComputeStatRadarPoints, radius does not vary per vertex) — the base/top ring geometry
+        // for Stat Mesh 3D's extruded prism
+        public static void ComputeRegularPolygonPoints(int sides, double radius, out List<double> x, out List<double> y)
+        {
+            x = new List<double>();
+            y = new List<double>();
+            if (sides < 3 || radius <= 0) return;
+
+            for (int i = 0; i < sides; i++)
+            {
+                double angle = -Math.PI / 2 + (2 * Math.PI * i / sides);
+                x.Add(radius * Math.Cos(angle));
+                y.Add(radius * Math.Sin(angle));
+            }
+        }
+
+        // item — v2.1.0: normalizes stat values to [0,1] then scales by heightFactor, for Stat
+        // Mesh 3D's per-vertex extrusion height
+        public static List<double> ComputeStatMeshHeights(IReadOnlyList<int> statValues, double maxStat, double heightFactor)
+        {
+            var heights = new List<double>();
+            if (statValues == null || maxStat <= 0) return heights;
+
+            foreach (var v in statValues)
+            {
+                double normalized = Math.Max(0.0, Math.Min(1.0, v / maxStat));
+                heights.Add(normalized * heightFactor);
+            }
+            return heights;
+        }
+
+        // record — v2.1.0: filters two parallel lists (e.g. names + stat totals) by a named rule
+        // against [min, max]; unknown rule names fall back to "between". Extra items in the
+        // longer list are ignored rather than throwing.
+        public static void FilterByRule(IReadOnlyList<string> names, IReadOnlyList<double> values, string rule, double min, double max,
+            out List<string> filteredNames, out List<double> filteredValues, out List<int> matchIndices)
+        {
+            filteredNames = new List<string>();
+            filteredValues = new List<double>();
+            matchIndices = new List<int>();
+            if (names == null || values == null) return;
+
+            int n = Math.Min(names.Count, values.Count);
+            string normalizedRule = (rule ?? "").Trim().ToLowerInvariant();
+
+            for (int i = 0; i < n; i++)
+            {
+                double v = values[i];
+                bool match;
+                switch (normalizedRule)
+                {
+                    case "greaterthan": match = v > min; break;
+                    case "lessthan": match = v < max; break;
+                    case "equals": match = Math.Abs(v - min) < 1e-9; break;
+                    case "between":
+                    default: match = v >= min && v <= max; break;
+                }
+
+                if (match)
+                {
+                    filteredNames.Add(names[i]);
+                    filteredValues.Add(v);
+                    matchIndices.Add(i);
+                }
+            }
+        }
+
+        // item — v2.1.0: joins a name + stat display lines into one label string for
+        // Canvas Sprite Card, trimming trailing blank lines. Empty inputs -> "".
+        public static string BuildCardLabel(string name, IReadOnlyList<string> statLines)
+        {
+            var sb = new System.Text.StringBuilder();
+            if (!string.IsNullOrWhiteSpace(name)) sb.AppendLine(name);
+            if (statLines != null)
+                foreach (var line in statLines)
+                    sb.AppendLine(line);
+            return sb.ToString().TrimEnd('\r', '\n');
+        }
+
+        // item — v2.1.0: one-line summary of a batch download's outcome
+        public static string SummarizeBatchStatus(int successCount, int failureCount)
+        {
+            if (failureCount == 0) return "OK (" + successCount + "/" + successCount + ")";
+            return "Partial: " + successCount + " succeeded, " + failureCount + " failed";
         }
 
         // record — recursively walks an evolution-chain's "chain" node, emitting one edge per step

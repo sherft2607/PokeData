@@ -90,3 +90,54 @@ PHASE 10 — PACKAGE                 (pipeline Phase 15)
 ```
 
 Note: Gate 5 (auth test in Rhino) is skipped for this build — there is no Auth component to test.
+
+## v2.0.0 extend round (rest-add-feature)
+
+[x] PokemonCry.cs               [BUILD] Pokemon tab — cry URLs + trigger-to-play
+[x] TypeMatchup.cs              [BUILD] Types tab — 2x/0.5x/0x outgoing damage lists
+[x] StatRadar.cs                [BUILD] new Visualization tab — normalized radar polygon
+[x] GetMove.cs                  [BUILD] +Priority, +Description outputs (appended)
+[x] GetAbility.cs               [BUILD] +Short Effect output (appended)
+[x] GetType.cs                  [BUILD] +Color output (appended)
+[x] PokeDataParsing.cs          [BUILD] +ParseLocalizedEntries, +ComputeStatRadarPoints
+[x] PluginUtilities.cs          [BUILD] +TypeColor canonical palette, +Visualization category
+[x] icons.json + Icons/*.png    [MCP]   3 new icons rendered + embedded, user-approved
+[x] PokeData.Tests/ParsingTests.cs [BUILD] +18 tests for new pure-logic helpers (40/40 passing)
+[x] dotnet build x 3 targets    [BUILD] net48 / net7.0-windows / net7.0 all green
+[ ] demos/README.md v2.0.0 additions [MANUAL] confirm live in Rhino at Gate 6 re-test
+[x] docs/ incremental update    [SHIP] new component pages + index/workflows/changelog entries
+[x] PokeData.csproj Version -> 2.0.0
+[x] Release PropertyGroup catchup verified present (pre-1.0.0 retrofit item)
+[ ] README.md / CLAUDE.md regenerated for v2.0.0 (pr-gh-package)
+[ ] /rest-package rebuild for v2.0.0 (3 .yak in dist/)
+[ ] git commit + tag v2.0.0 + push (user's call — offered, not auto-run)
+
+## v2.1.0 extend round (rest-add-feature — 10-component batch)
+
+[x] GetGeneration.cs             [BUILD] Data tab — species roster + region (new endpoint: generation_read)
+[x] DualTypeMatchup.cs           [BUILD] Types tab — dual-type defensive multiplier buckets
+[x] PokemonDimensions.cs         [BUILD] new Geometry tab — unit conversion + reference Box
+[x] StatMesh3D.cs                [BUILD] Visualization tab — extruded 3D radar mesh
+[x] GetItem.cs                   [BUILD] new Items tab (new endpoint: item_read)
+[x] TypePalette.cs               [BUILD] new Display tab — type color swatches + blend
+[x] PokemonFilter.cs             [BUILD] Data tab — parallel-list filter by rule
+[x] GetNature.cs                 [BUILD] new Stats tab (new endpoint: nature_read)
+[x] CanvasSpriteCard.cs          [BUILD] Display tab — card mesh + label + plane
+[x] BatchDownloader.cs           [BUILD] Pokemon tab — parallel async image downloads
+[x] PokeDataParsing.cs           [BUILD] +10 pure helpers (Ids-from-url, dual-type defense,
+    dimension conversion, regular-polygon points, stat-mesh heights, filter-by-rule,
+    card label join, batch status summary)
+[x] PluginUtilities.cs           [BUILD] +AllTypeNames, +BlendColors; 5 new subcategory constants
+    (Items, Stats, Data, Geometry, Display); renumbered all 12 tabs
+[x] call-library.json / call-library-validated.json [MANUAL] generation_read/item_read/nature_read
+    extracted + VALIDATED against live pokeapi.co this session (200s confirmed, 404 confirmed
+    for a bad item ID)
+[x] icons.json + Icons/*.png     [MCP]   10 new icons rendered + embedded, user-approved
+[x] PokeData.Tests/ParsingTests.cs [BUILD] +36 tests for new pure-logic helpers (76/76 passing)
+[x] dotnet build x 3 targets     [BUILD] net48 / net7.0-windows / net7.0 all green
+[ ] demos/README.md v2.1.0 additions [MANUAL] confirm live in Rhino at Gate 6 re-test (pending,
+    same as v2.0.0's outstanding Gate 6 re-test)
+[ ] docs/ incremental update for v2.1.0
+[ ] README.md / CLAUDE.md regenerated for v2.1.0
+[ ] /rest-package rebuild for v2.1.0 (3 .yak in dist/)
+[ ] git commit + tag + push (user's call)

@@ -33,13 +33,33 @@
     { "name": "GetPokemonSpecies", "subcategory": "Pokemon", "fg_iconify_id": "mdi:book-open-variant" },
     { "name": "SpriteDownloader", "subcategory": "Pokemon", "fg_iconify_id": "ri:image-download-fill" },
 
+    { "name": "PokemonCry", "subcategory": "Pokemon", "fg_iconify_id": "mdi:volume-high" },
+    { "name": "BatchDownloader", "subcategory": "Pokemon", "fg_iconify_id": "mdi:download-multiple" },
+
     { "name": "GetType", "subcategory": "Types", "fg_iconify_id": "mdi:fire" },
     { "name": "GetTypeMatrix", "subcategory": "Types", "fg_iconify_id": "mdi:table-large" },
+    { "name": "TypeMatchup", "subcategory": "Types", "fg_iconify_id": "mdi:scale-balance" },
+    { "name": "DualTypeMatchup", "subcategory": "Types", "fg_iconify_id": "mdi:shield-half-full" },
 
     { "name": "GetEvolutionChain", "subcategory": "Evolution", "fg_iconify_id": "mdi:source-branch" },
 
     { "name": "GetMove", "subcategory": "Moves", "fg_iconify_id": "mdi:sword-cross" },
     { "name": "GetAbility", "subcategory": "Moves", "fg_iconify_id": "mdi:lightning-bolt" },
+
+    { "name": "GetItem", "subcategory": "Items", "fg_iconify_id": "mdi:bag-personal" },
+
+    { "name": "GetNature", "subcategory": "Stats", "fg_iconify_id": "mdi:emoticon-outline" },
+
+    { "name": "GetGeneration", "subcategory": "Data", "fg_iconify_id": "mdi:numeric" },
+    { "name": "PokemonFilter", "subcategory": "Data", "fg_iconify_id": "mdi:filter-variant" },
+
+    { "name": "PokemonDimensions", "subcategory": "Geometry", "fg_iconify_id": "mdi:cube-outline" },
+
+    { "name": "StatRadar", "subcategory": "Visualization", "fg_iconify_id": "mdi:radar" },
+    { "name": "StatMesh3D", "subcategory": "Visualization", "fg_iconify_id": "mdi:chart-box-outline" },
+
+    { "name": "TypePalette", "subcategory": "Display", "fg_iconify_id": "mdi:palette" },
+    { "name": "CanvasSpriteCard", "subcategory": "Display", "fg_iconify_id": "mdi:card-outline" },
 
     { "name": "PokemonTypePreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-list-bulleted-type" }
   ]

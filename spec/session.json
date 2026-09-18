@@ -1,5 +1,6 @@
 {
   "plugin_name": "PokeData",
+  "please_rest_version": "1.0.0",
   "author": { "name": "Shandon Herft", "contact": "shandonherft@gmail.com" },
   "github_org": "sherft2607",
   "findings_path": "dogfood/PokeData-run-01.md",
@@ -22,27 +23,28 @@
     "released_tags": []
   },
   "package": {
-    "version": "1.0.0",
-    "dist_yak_files": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"],
+    "version": "2.0.0",
+    "dist_yak_files": ["pokedata-2.0.0-rh7_0-any.yak", "pokedata-2.0.0-rh8_0-win.yak", "pokedata-2.0.0-rh8_0-mac.yak"],
     "yak_validated": true
   },
   "published": {
     "github_release": { "tag": "v1.0.0", "url": "https://github.com/sherft2607/PokeData/releases/tag/v1.0.0", "assets": 6 },
     "yak_pushed": { "packages": ["pokedata-1.0.0-rh7_0-any.yak", "pokedata-1.0.0-rh8_0-win.yak", "pokedata-1.0.0-rh8_0-mac.yak"], "pushed": true },
     "food4rhino_url": null,
-    "backfilled": true
+    "backfilled": true,
+    "v2_0_0_pending": "dist/*.yak rebuilt locally; git tag v2.0.0 + push not yet done — awaiting plugin author's live Gate 6 re-test"
   },
   "gate7": {
     "passed": true,
     "tested_platforms": ["Rhino 8 Windows"],
     "untested_platforms": ["Rhino 7 Windows", "Rhino 8 Mac"],
-    "note": "Release notes and Food4Rhino listing must flag Rh7/Mac as untested per pr-yak-package"
+    "note": "Release notes and Food4Rhino listing must flag Rh7/Mac as untested per pr-yak-package. Re-applies to v2.0.0 — no new cross-platform test performed this round."
   },
   "skipped_phases": [9],
   "gates_passed": [1, 2, 3, 4, { "gate": 5, "auto": true, "reason": "no auth on this API, nothing to test" }, 6],
-  "gates_pending": [],
-  "decisions": { "aec_features_selected": [], "build_approved": true, "manual_fixes": ["call-library.json: auth_in header->none, cleared Authorization header on all 7 entries (F4)", "call-library-validated.json: all 7 entries marked VALIDATED from user's manual verification outside sandbox — pokeapi.co unreachable from sandbox egress, see dogfood F5"], "extend_rounds": [{ "round": 1, "batch": 1, "added": ["GetPokemon: +Legacy Cry URL/+Latest Cry URL outputs (appended)", "GetType: +Associated Pokemon output (appended)", "GetPokemonSpeciesComponent (new)", "SpriteDownloaderComponent (new)"], "endpoints_reused_no_new_extraction": true, "icons_gate_passed": true, "build_green_all_3_targets": true, "tests": "22/22 passed" }] },
+  "gates_pending": [{ "gate": 6, "note": "v2.0.0 re-test — 16 new/changed components across 2 batches, no Grasshopper MCP bridge in building sandbox; demos/README.md 'v2.0.0 additions' + 'v2.0.0 batch 2 additions' sections have manual steps, pending plugin author's own Rhino session" }],
+  "decisions": { "aec_features_selected": [], "build_approved": true, "manual_fixes": ["call-library.json: auth_in header->none, cleared Authorization header on all 7 entries (F4)", "call-library-validated.json: all 7 entries marked VALIDATED from user's manual verification outside sandbox — pokeapi.co unreachable from sandbox egress, see dogfood F5"], "extend_rounds": [{ "round": 1, "batch": 1, "added": ["GetPokemon: +Legacy Cry URL/+Latest Cry URL outputs (appended)", "GetType: +Associated Pokemon output (appended)", "GetPokemonSpeciesComponent (new)", "SpriteDownloaderComponent (new)"], "endpoints_reused_no_new_extraction": true, "icons_gate_passed": true, "build_green_all_3_targets": true, "tests": "22/22 passed" }, { "round": 2, "batch": 1, "version": "2.0.0", "added": ["PokemonCryComponent (new, Pokemon tab)", "TypeMatchupComponent (new, Types tab)", "StatRadarComponent (new, Visualization tab — new subcategory)", "GetMove: +Priority/+Description outputs (appended)", "GetAbility: +Short Effect output (appended)", "GetType: +Color output (appended)"], "endpoints_reused_no_new_extraction": true, "icons_gate_passed": true, "build_green_all_3_targets": true, "tests": "40/40 passed", "gate6_status": "pending — plugin author to test live in Rhino before tag/push", "pre_1_0_0_retrofit": "please_rest_version stamped (was missing); Release PropertyGroup confirmed already present; .yak rebuild confirmed 3 distinct targets (rh7_0-any/rh8_0-win/rh8_0-mac, not the old Mac-as-Windows bug); .gitignore gained demos/*.gh line" }, { "round": 2, "batch": 2, "version": "2.0.0", "note": "expanded the same unreleased v2.0.0 before its first tag — user explicitly asked to grow scope before locking the release, so version stayed 2.0.0 rather than bumping to 2.1.0", "added": ["GetGenerationComponent (new Data tab, endpoint: generation_read)", "PokemonFilterComponent (Data tab, pure — no endpoint)", "GetItemComponent (new Items tab, endpoint: item_read)", "GetNatureComponent (new Stats tab, endpoint: nature_read)", "PokemonDimensionsComponent (new Geometry tab, pure — no endpoint)", "DualTypeMatchupComponent (Types tab, reuses type_read)", "StatMesh3DComponent (Visualization tab, pure — no endpoint)", "TypePaletteComponent (new Display tab, pure — no endpoint)", "CanvasSpriteCardComponent (Display tab, pure — no endpoint)", "BatchDownloaderComponent (Pokemon tab, pure — reuses GetImageBytesAsync)"], "new_endpoints_extracted_and_validated_live": ["generation_read", "item_read", "nature_read"], "live_api_reachable_this_session": true, "icons_gate_passed": true, "build_green_all_3_targets": true, "tests": "76/76 passed (36 new)", "gate6_status": "pending — plugin author to test live in Rhino before tag/push, folded into the same pending v2.0.0 re-test as batch 1", "subcategory_renumbering": "12 tabs total now (was 7 after batch 1) — Pokemon/Types/Evolution/Moves/Items/Stats/Data/Geometry/Visualization/Display/Presets/Utilities" }] },
   "gate_feedback": {},
   "awaiting_fix": false,
-  "degraded": { "12": "no Grasshopper MCP bridge wired — demos/README.md written for manual build, Gate 6 fully manual" }
+  "degraded": { "12": "no Grasshopper MCP bridge wired — demos/README.md written for manual build, Gate 6 fully manual (also true for both v2.0.0 batches)" }
 }

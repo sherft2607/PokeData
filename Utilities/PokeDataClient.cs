@@ -151,6 +151,43 @@ namespace PokeData
 
         #endregion
 
+        #region v2.1.0: Generation / Item / Nature methods
+
+        public async Task<Tuple<bool, string, string>> GetGenerationAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Generation is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/generation/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetItemAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Item Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/item/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetNatureAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Nature Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/nature/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        #endregion
+
         #region Image methods
 
         // Sprites are hosted on raw.githubusercontent.com, not pokeapi.co — an absolute URL,
