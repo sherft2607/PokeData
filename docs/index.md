@@ -13,7 +13,7 @@ battle-optimization solvers — no auth required, since PokeAPI is fully public.
 - **Released:** [v1.0.0](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0) (2026-09-17)
   · [v2.0.0](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) ·
   [v3.0.0](https://github.com/sherft2607/PokeData/releases/tag/v3.0.0) (2026-09-18) ·
-  v4.0.0 (2026-09-24, current — not yet tagged/pushed)
+  [v4.0.0](https://github.com/sherft2607/PokeData/releases/tag/v4.0.0) (2026-09-24, current)
 
 ## Install
 

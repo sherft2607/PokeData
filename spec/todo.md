@@ -202,7 +202,7 @@ Note: Gate 5 (auth test in Rhino) is skipped for this build — there is no Auth
 [x] PokeData.csproj Version -> 4.0.0 + docs/changelog.md entry
 [x] README.md / CLAUDE.md regenerated for v4.0.0
 [x] /rest-package rebuild for v4.0.0 (3 .yak in dist/)
-[ ] git commit + tag v4.0.0 + push (user's call)
+[x] git commit + tag v4.0.0 + push — done as part of round 5's finalization below
 
 ## v4.0.0 round 5 (rest-add-feature — region / pokedex / egg group / growth rate / stat)
 
@@ -238,12 +238,24 @@ Note: Gate 5 (auth test in Rhino) is skipped for this build — there is no Auth
 [x] PokeData.Tests/ParsingTests.cs [BUILD] +9 tests for new pure-logic parsing helpers (119/119 passing)
 [x] dotnet build x 3 targets   [BUILD] net48 / net7.0-windows / net7.0 all green, 0 errors
 [x] dotnet test                [BUILD] all green
-[ ] demos/README.md round-5 additions + Gate 6 live re-test (spec pending; plugin author is
-    running this live in Rhino before final packaging)
+[x] demos/README.md round-5 additions + Gate 6 live re-test — confirmed by plugin author live in
+    Rhino: all 9 components compute correctly
 [x] docs/ incremental update for round 5
-[ ] PokeData.csproj Version -> 4.0.0 already set (round 5 folds into the same unreleased v4.0.0,
-    same pattern as v2.0.0's batch 2) + docs/changelog.md entry
+[x] PokeData.csproj Version -> 4.0.0 (round 5 folds into the same unreleased v4.0.0, same pattern
+    as v2.0.0's batch 2) + docs/changelog.md entry
 [x] README.md / CLAUDE.md regenerated for round 5
-[ ] /rest-package rebuild for v4.0.0 with round-5 components (held — user is completing Gate 6
-    live Rhino verification for all 9 new components first)
-[ ] git commit + tag v4.0.0 + push (user's call, held until Gate 6 + repackage)
+[x] Post-Gate-6 fix: PluginUtilities.cs subcategory prefixes changed to two-digit zero-padded
+    ("01." through "13.") — Grasshopper ribbon was sorting 1/10/11/12/13/2/3/... alphabetically;
+    confirmed by plugin author to now sort correctly in Grasshopper; rebuilt x 3 targets,
+    119/119 tests still green (no logic change)
+[x] /rest-package rebuild for v4.0.0 with round-5 components + ribbon fix (3 .yak in dist/)
+[x] git commit ("v4.0.0: 14 new components, shared response cache, geographic hierarchy, battle
+    math, and zero-padded ribbon categories") + tag v4.0.0 + push to origin/main
+[x] yak login + yak push all 3 v4.0.0 packages — confirmed live on yak.rhino3d.com/packages/pokedata
+[x] Backfill: docs/index.md Released line links v4.0.0's tag (no longer "not yet tagged/pushed");
+    docs/changelog.md gained the GitHub Release + Yak Package Manager links (v3.0.0's pattern);
+    README.md's Yak install line was already generic wording, no placeholder to replace;
+    Food4Rhino listing still pending — not part of this round
+[ ] Food4Rhino listing (plugin author's next step, whenever they choose to do it)
+[ ] Cross-platform Gate 7 re-test on Rh7 Windows / Rh8 Mac (still only tested on Rh8 Windows,
+    same open item carried since v3.0.0)

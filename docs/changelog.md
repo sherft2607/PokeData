@@ -2,6 +2,9 @@
 
 ## 4.0.0 — 2026-09-24
 
+[GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v4.0.0) · live on the
+[Yak Package Manager](https://yak.rhino3d.com/packages/pokedata)
+
 - **Items** tab gained **Get Berry** (growth time/harvest/size/smoothness/soil dryness/natural
   gift power+type) and **Get Berry Flavors** (flavor/potency breakdown, split out for list-based
   tools) — both new endpoint (`berry`).
@@ -23,6 +26,9 @@
   list breakout" pair (Region/Pokedex/Growth Rate/Stat, and retroactively Berry/Location) now
   fetches its shared endpoint only once per solve instead of once per component.
 - 9 new unit tests for the new pure-parsing helpers (119/119 total).
+- Ribbon fix: every subcategory's numeric prefix changed from single-digit (`"1. Pokemon"`) to
+  two-digit zero-padded (`"01. Pokemon"`) — Grasshopper was sorting the ribbon tabs alphabetically
+  as strings, which put `10.`/`11.`/`12.`/`13.` before `2.`. All 13 tabs now sort in display order.
 
 ## 3.0.0 — 2026-09-18
 
