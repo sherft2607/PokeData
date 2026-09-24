@@ -6,8 +6,9 @@
 >
 > Built with the [PleaseREST](https://github.com/sherft2607/PleaseREST) Claude Code plugin — an AI pipeline that turns a REST API reference into a Grasshopper plugin.
 
-Look up Pokemon, types, evolution chains, moves, and abilities from PokeAPI directly on the
-Grasshopper canvas — no token, no sign-up, fully public.
+Look up Pokemon, types, evolution chains, moves, abilities, items, berries, locations, machines,
+regions, pokedexes, egg groups, growth rates, and stats from PokeAPI directly on the Grasshopper
+canvas — no token, no sign-up, fully public.
 
 <br clear="left">
 
@@ -50,6 +51,14 @@ Grasshopper canvas — no token, no sign-up, fully public.
   type charts by hand.
 - **Get a real render material colored by type** — a Rhino `RenderMaterial` built from canonical
   type colors, ready to shade a generated model.
+- **Look up berries, locations, and TM/HM machines, chained straight into existing lookups** — a
+  berry's item, or a machine's move and item, come out named to match `Get Item`'s and `Get
+  Move`'s inputs exactly, so they wire straight in with no adapter component.
+- **Drill from a region down to its species roster, or a stat to the natures that shape it** — a
+  region's pokedexes chain into a full dex species list, a species' egg group/growth rate chain
+  into that group's members or that rate's level curve, and a stat chains to the natures that
+  raise or lower it — every step behind a shared response cache, so a lookup and its list
+  breakout never double-fetch the same endpoint.
 
 Component chains for each of these are in [docs/workflows.md](docs/workflows.md); worked examples
 are in [docs/examples/](docs/examples/).
@@ -102,6 +111,9 @@ Full walkthrough: [docs/quickstart.md](docs/quickstart.md). Common wirings as co
 | Pokemon | Sprite Downloader | Sprite URL | Bitmap, Status | Downloads an image URL to a Bitmap |
 | Pokemon | Pokemon Cry | Pokemon Name Or ID, Play | Legacy Cry URL, Latest Cry URL, Status | Cry audio URLs + trigger-to-play |
 | Pokemon | Batch Downloader | URLs, Trigger | Bitmaps, Status | Parallel image downloads, trigger-gated |
+| Pokemon | Get Egg Group | Egg Group Name Or ID | Name, Species Names, Status, Response | Egg group member roster |
+| Pokemon | Get Growth Rate | Growth Rate Name Or ID | Formula, Max Level, Status, Response | Growth rate formula lookup |
+| Pokemon | Get Growth Rate Levels | Growth Rate Name Or ID | Levels, Experience, Status, Response | Level/experience curve |
 | Types | Get Type | Type Name | Double/Half/No Damage To/From, Status, Response, Associated Pokemon, Color | One type's damage relations |
 | Types | Get Type Matrix | (none) | Attacking Type, Defending Type, Multiplier, Status, Response | Full 18x18 type matrix |
 | Types | Type Matchup | Attacking Type | 2x/0.5x/0x Damage To, Status, Response | Outgoing damage relations only |
@@ -109,10 +121,22 @@ Full walkthrough: [docs/quickstart.md](docs/quickstart.md). Common wirings as co
 | Evolution | Get Evolution Chain | Species Name Or ID | Parent Species, Child Species, Trigger, Status, Response | Flattened evolution chain |
 | Moves | Get Move | Move Name Or ID | Power, Accuracy, PP, Damage Class, Type, Effect Text, Status, Response, Priority, Description | Move mechanics lookup |
 | Moves | Get Ability | Ability Name Or ID | Generation, Effect Text, Status, Response, Short Effect | Ability mechanics lookup |
+| Moves | Get Machine | Machine ID | Version Group, Move Name Or ID, Item Name Or ID, Status, Response | TM/HM lookup, chains into Get Move/Get Item |
 | Items | Get Item | Item Name Or ID | Category, Cost, Fling Power, Effect Text, Sprite URL, Status, Response | Item lookup |
+| Items | Get Berry | Berry Name Or ID | Name, Growth Time, Max Harvest, Size, Smoothness, Soil Dryness, Natural Gift Power, Natural Gift Type, Item Name Or ID, Status, Response | Berry lookup, chains into Get Item |
+| Items | Get Berry Flavors | Berry Name Or ID | Flavor Names, Potencies, Status, Response | Berry flavor/potency breakdown |
 | Stats | Get Nature | Nature Name Or ID | Increased/Decreased Stat, Liked/Disliked Flavor, Status, Response | Nature lookup |
+| Stats | Get Stat | Stat Name Or ID | Is Battle Only, Status, Response | Stat battle-only flag |
+| Stats | Get Stat Affecting Natures | Stat Name Or ID | Increasing/Decreasing Natures, Status, Response | Reverse nature lookup |
 | Data | Get Generation | Generation | Species IDs, Species Names, Region, Status, Response | Generation species roster |
 | Data | Pokemon Filter | Names, Values, Filter Rule, Min, Max | Filtered Names, Filtered Values, Match Indices, Status | Parallel-list filtering |
+| Data | Get Location | Location Name Or ID | Name, Region, Status, Response | Location lookup |
+| Data | Get Location Areas | Location Name Or ID | Area Names, Status, Response | Location sub-area names |
+| Data | Get Region | Region Name Or ID | Name, Main Generation, Status, Response | Region lookup |
+| Data | Get Region Locations | Region Name Or ID | Location Names, Status, Response | Region location names |
+| Data | Get Region Pokedexes | Region Name Or ID | Pokedex Name Or ID, Status, Response | Region pokedex names |
+| Data | Get Pokedex | Pokedex Name Or ID | Name, Is Main Series, Status, Response | Pokedex lookup |
+| Data | Get Pokedex Species | Pokedex Name Or ID | Species Names, Status, Response | Full dex species roster |
 | Geometry | Pokemon Dimensions | Height, Weight, Plane | Height (m/ft), Weight (kg/lb), Reference Box, Status | Unit conversion + reference Box |
 | Visualization | Stat Radar | Stat Values, Radius, Max Stat, Center | Radar Points, Radar Polyline, Status | Normalized 2D stat radar chart |
 | Visualization | Stat Mesh 3D | Stat Values, Height Factor, Radius, Max Stat, Center | Mesh, Status | Extruded 3D radar mesh |

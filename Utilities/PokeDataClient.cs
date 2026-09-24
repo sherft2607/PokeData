@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -15,6 +16,15 @@ namespace PokeData
 
         // ONE HttpClient for the whole plugin — shared across every component and every solve.
         private static readonly HttpClient _http;
+
+        // v4.0.0 round 5: a per-endpoint-plus-ID response cache, shared across every component instance
+        // (static, same lifetime as _http). A "core lookup + list breakout" pair (e.g. Get Region /
+        // Get Region Locations / Get Region Pokedexes) all call the same GET for the same ID — this
+        // cache means only the first of them on a given solve actually hits the network; the rest
+        // reuse its parsed-JSON response. Only successful responses are cached; a failure is never
+        // cached so a transient error doesn't stick.
+        private static readonly ConcurrentDictionary<string, Tuple<bool, string, string>> _responseCache
+            = new ConcurrentDictionary<string, Tuple<bool, string, string>>(StringComparer.OrdinalIgnoreCase);
 
         static PokeDataClient()
         {
@@ -188,6 +198,102 @@ namespace PokeData
 
         #endregion
 
+        #region v4.0.0: Berry / Location / Machine methods
+
+        public async Task<Tuple<bool, string, string>> GetBerryAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Berry Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/berry/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetLocationAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Location Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/location/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetMachineAsync(int id)
+        {
+            try
+            {
+                if (id <= 0) return Fail("Machine ID must be a positive integer.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/machine/" + id + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        #endregion
+
+        #region v4.0.0 round 5: Region / Pokedex / Egg Group / Growth Rate / Stat methods
+
+        public async Task<Tuple<bool, string, string>> GetRegionAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Region Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/region/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetPokedexAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Pokedex Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/pokedex/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetEggGroupAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Egg Group Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/egg-group/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetGrowthRateAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Growth Rate Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/growth-rate/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        public async Task<Tuple<bool, string, string>> GetStatAsync(string nameOrId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nameOrId)) return Fail("Stat Name Or ID is empty.");
+                var req = NewRequest(HttpMethod.Get, "api/v2/stat/" + Esc(nameOrId.Trim().ToLowerInvariant()) + "/");
+                return await SendAsync(req).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return Fail(ex.ToString()); }
+        }
+
+        #endregion
+
         #region Image methods
 
         // Sprites are hosted on raw.githubusercontent.com, not pokeapi.co — an absolute URL,
@@ -220,6 +326,10 @@ namespace PokeData
 
         private async Task<Tuple<bool, string, string>> SendAsync(HttpRequestMessage template)
         {
+            string cacheKey = template.RequestUri.ToString();
+            if (_responseCache.TryGetValue(cacheKey, out var cachedResult))
+                return cachedResult;
+
             for (int attempt = 0; ; attempt++)
             {
                 int status; string reason; string body; TimeSpan? retryAfter;
@@ -247,7 +357,9 @@ namespace PokeData
                 if (status < 200 || status > 299)
                     return Fail("HTTP " + status + " " + reason + "\n" + body);
 
-                return Ok(body);
+                var result = Ok(body);
+                _responseCache[cacheKey] = result;
+                return result;
             }
         }
 

@@ -1,5 +1,29 @@
 # Changelog
 
+## 4.0.0 — 2026-09-24
+
+- **Items** tab gained **Get Berry** (growth time/harvest/size/smoothness/soil dryness/natural
+  gift power+type) and **Get Berry Flavors** (flavor/potency breakdown, split out for list-based
+  tools) — both new endpoint (`berry`).
+- **Data** tab gained **Get Location** (name + region) and **Get Location Areas** (sub-area name
+  list, split out for list-based tools) — new endpoint (`location`).
+- **Moves** tab gained **Get Machine** (which move a TM/HM teaches and which item it corresponds
+  to, looked up by numeric ID only) — new endpoint (`machine`).
+- All three new lookups expose a `[Thing] Name Or ID` output named/typed identically to an
+  existing component's input (`Get Berry`/`Get Machine` → `Get Item`, `Get Machine` → `Get Move`)
+  so they chain directly on the canvas with no adapter component.
+- 4 new unit tests for the new pure-parsing helpers (110/110 total).
+- Round 5 (same unreleased 4.0.0, expanded before its first tag): **Data** tab gained **Get
+  Region**/**Get Region Locations**/**Get Region Pokedexes** and **Get Pokedex**/**Get Pokedex
+  Species** — new endpoints (`region`, `pokedex`). **Pokemon** tab gained **Get Egg Group** and
+  **Get Growth Rate**/**Get Growth Rate Levels** — new endpoints (`egg-group`, `growth-rate`).
+  **Stats** tab gained **Get Stat** and **Get Stat Affecting Natures** (the reverse lookup of Get
+  Nature) — new endpoint (`stat`).
+- `PokeDataClient` gained a shared response cache (keyed by request URL) — every "core lookup +
+  list breakout" pair (Region/Pokedex/Growth Rate/Stat, and retroactively Berry/Location) now
+  fetches its shared endpoint only once per solve instead of once per component.
+- 9 new unit tests for the new pure-parsing helpers (119/119 total).
+
 ## 3.0.0 — 2026-09-18
 
 [GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v3.0.0) · live on the

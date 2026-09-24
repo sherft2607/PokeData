@@ -35,6 +35,9 @@
 
     { "name": "PokemonCry", "subcategory": "Pokemon", "fg_iconify_id": "mdi:volume-high" },
     { "name": "BatchDownloader", "subcategory": "Pokemon", "fg_iconify_id": "mdi:download-multiple" },
+    { "name": "GetEggGroup", "subcategory": "Pokemon", "fg_iconify_id": "mdi:egg-outline" },
+    { "name": "GetGrowthRate", "subcategory": "Pokemon", "fg_iconify_id": "mdi:chart-bell-curve" },
+    { "name": "GetGrowthRateLevels", "subcategory": "Pokemon", "fg_iconify_id": "mdi:stairs-up" },
 
     { "name": "GetType", "subcategory": "Types", "fg_iconify_id": "mdi:fire" },
     { "name": "GetTypeMatrix", "subcategory": "Types", "fg_iconify_id": "mdi:table-large" },
@@ -45,13 +48,25 @@
 
     { "name": "GetMove", "subcategory": "Moves", "fg_iconify_id": "mdi:sword-cross" },
     { "name": "GetAbility", "subcategory": "Moves", "fg_iconify_id": "mdi:lightning-bolt" },
+    { "name": "GetMachine", "subcategory": "Moves", "fg_iconify_id": "mdi:disc" },
 
     { "name": "GetItem", "subcategory": "Items", "fg_iconify_id": "mdi:bag-personal" },
+    { "name": "GetBerry", "subcategory": "Items", "fg_iconify_id": "mdi:fruit-cherries" },
+    { "name": "GetBerryFlavors", "subcategory": "Items", "fg_iconify_id": "mdi:candy-outline" },
 
     { "name": "GetNature", "subcategory": "Stats", "fg_iconify_id": "mdi:emoticon-outline" },
+    { "name": "GetStat", "subcategory": "Stats", "fg_iconify_id": "mdi:chart-box-plus-outline" },
+    { "name": "GetStatAffectingNatures", "subcategory": "Stats", "fg_iconify_id": "mdi:arrow-up-down-bold" },
 
     { "name": "GetGeneration", "subcategory": "Data", "fg_iconify_id": "mdi:numeric" },
     { "name": "PokemonFilter", "subcategory": "Data", "fg_iconify_id": "mdi:filter-variant" },
+    { "name": "GetLocation", "subcategory": "Data", "fg_iconify_id": "mdi:map-marker-outline" },
+    { "name": "GetLocationAreas", "subcategory": "Data", "fg_iconify_id": "mdi:map-marker-multiple-outline" },
+    { "name": "GetRegion", "subcategory": "Data", "fg_iconify_id": "mdi:earth" },
+    { "name": "GetRegionLocations", "subcategory": "Data", "fg_iconify_id": "mdi:map-outline" },
+    { "name": "GetRegionPokedexes", "subcategory": "Data", "fg_iconify_id": "mdi:book-multiple-outline" },
+    { "name": "GetPokedex", "subcategory": "Data", "fg_iconify_id": "mdi:book-outline" },
+    { "name": "GetPokedexSpecies", "subcategory": "Data", "fg_iconify_id": "mdi:format-list-numbered" },
 
     { "name": "PokemonDimensions", "subcategory": "Geometry", "fg_iconify_id": "mdi:cube-outline" },
 

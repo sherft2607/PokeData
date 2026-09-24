@@ -321,5 +321,237 @@
       "error_body": "",
       "note": "Live GET /api/v2/nature/adamant/ and /nature/hardy/ both 200. Response shape confirmed: increased_stat.name/decreased_stat.name (adamant), all four null for neutral hardy — SafeString already null-safe on this shape"
     }
+  },
+  {
+    "endpoint_id": "berry_read",
+    "component": "GetBerryComponent",
+    "method": "GET",
+    "url_template": "/api/v2/berry/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — also used by GetBerryFlavorsComponent (same endpoint, cached, flattens flavors[])",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/berry/1/ 200. Response shape confirmed: growth_time, max_harvest, natural_gift_power, size, smoothness, soil_dryness, natural_gift_type.name, item.name (e.g. \"cheri-berry\" — feeds straight into GetItemComponent's Item Name Or ID input), flavors[].potency + flavors[].flavor.name"
+    }
+  },
+  {
+    "endpoint_id": "location_read",
+    "component": "GetLocationComponent",
+    "method": "GET",
+    "url_template": "/api/v2/location/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — also used by GetLocationAreasComponent (same endpoint, cached, flattens areas[])",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/location/1/ 200. Response shape confirmed: region.name, areas[].name (name/url reference pairs, not full location-area objects — only the name is used, no separate location-area fetch)"
+    }
+  },
+  {
+    "endpoint_id": "machine_read",
+    "component": "GetMachineComponent",
+    "method": "GET",
+    "url_template": "/api/v2/machine/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — machine is looked up by numeric ID only, no name field on this resource",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/machine/1/ 200. Response shape confirmed: version_group.name, move.name (feeds GetMoveComponent's Move Name Or ID), item.name (feeds GetItemComponent's Item Name Or ID)"
+    }
+  },
+  {
+    "endpoint_id": "region_read",
+    "component": "GetRegionComponent",
+    "method": "GET",
+    "url_template": "/api/v2/region/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetRegionLocationsComponent and GetRegionPokedexesComponent (same endpoint, cached, flattens locations[]/pokedexes[])",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/region/1/ 200. Response shape confirmed: main_generation.name, locations[].name (many entries), pokedexes[].name (2 entries: kanto, letsgo-kanto — the second feeds GetPokedexComponent's Pokedex Name Or ID)"
+    }
+  },
+  {
+    "endpoint_id": "pokedex_read",
+    "component": "GetPokedexComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokedex/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetPokedexSpeciesComponent (same endpoint, cached, flattens pokemon_entries[].pokemon_species.name)",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/pokedex/2/ 200. Response shape confirmed: is_main_series (true), pokemon_entries[].entry_number + pokemon_entries[].pokemon_species.name (bulbasaur first at entry_number 1, in order)"
+    }
+  },
+  {
+    "endpoint_id": "egg-group_read",
+    "component": "GetEggGroupComponent",
+    "method": "GET",
+    "url_template": "/api/v2/egg-group/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/egg-group/1/ 200. Response shape confirmed: pokemon_species[].name — same top-level {name,url} shape NamesToList already handles"
+    }
+  },
+  {
+    "endpoint_id": "growth-rate_read",
+    "component": "GetGrowthRateComponent",
+    "method": "GET",
+    "url_template": "/api/v2/growth-rate/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetGrowthRateLevelsComponent (same endpoint, cached, flattens levels[])",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/growth-rate/1/ 200. Response shape confirmed: formula (LaTeX string), levels[].level + levels[].experience pairs starting at level 1 / experience 0"
+    }
+  },
+  {
+    "endpoint_id": "stat_read",
+    "component": "GetStatComponent",
+    "method": "GET",
+    "url_template": "/api/v2/stat/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetStatAffectingNaturesComponent (same endpoint, cached, flattens affecting_natures.increase[]/decrease[])",
+    "status": "VALIDATED",
+    "test_result": {
+      "tag": "VALIDATED",
+      "status_code": 200,
+      "latency_ms": null,
+      "error": "",
+      "error_body": "",
+      "note": "Live GET /api/v2/stat/1/ and /stat/2/ both 200. is_battle_only confirmed false; stat/2 (attack) affecting_natures.increase[] confirmed non-empty ({name,url} pairs: lonely, adamant, naughty, ...)"
+    }
   }
 ]

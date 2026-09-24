@@ -17,15 +17,18 @@ namespace PokeData
 
         // Subcategory constants — one per subcategory, in display order.
         // No Auth subcategory: PokeAPI is fully public and unauthenticated.
-        internal static readonly string CategoryAAPokemon       = "1. Pokemon";
-        internal static readonly string CategoryABTypes         = "2. Types";
-        internal static readonly string CategoryACEvolution     = "3. Evolution";
-        internal static readonly string CategoryADMoves         = "4. Moves";
-        internal static readonly string CategoryAEItems         = "5. Items";
-        internal static readonly string CategoryAFStats         = "6. Stats";
-        internal static readonly string CategoryAGData          = "7. Data";
-        internal static readonly string CategoryAHGeometry      = "8. Geometry";
-        internal static readonly string CategoryAIVisualization = "9. Visualization";
+        // Two-digit zero-padded prefixes (01-13) so the Grasshopper ribbon sorts numerically
+        // instead of alphabetically — plain "10."/"11."/"12."/"13." sort before "2." under
+        // alphabetical string comparison, scrambling the tab order.
+        internal static readonly string CategoryAAPokemon       = "01. Pokemon";
+        internal static readonly string CategoryABTypes         = "02. Types";
+        internal static readonly string CategoryACEvolution     = "03. Evolution";
+        internal static readonly string CategoryADMoves         = "04. Moves";
+        internal static readonly string CategoryAEItems         = "05. Items";
+        internal static readonly string CategoryAFStats         = "06. Stats";
+        internal static readonly string CategoryAGData          = "07. Data";
+        internal static readonly string CategoryAHGeometry      = "08. Geometry";
+        internal static readonly string CategoryAIVisualization = "09. Visualization";
         internal static readonly string CategoryAJDisplay       = "10. Display";
         internal static readonly string CategoryAKGenerative    = "11. Generative";
         internal static readonly string CategoryZYPresets       = "12. Presets";

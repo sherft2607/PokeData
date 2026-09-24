@@ -39,3 +39,10 @@ What you can do with PokeData:
   team-wide coverage gaps, and a composite vulnerability score per type (v3.0.0)
 - Get a real Rhino render material colored by a Pokemon's type(s), for render/viewport-shading
   a generated model by type (v3.0.0)
+- Look up a berry's growth/size/gift stats and flavor breakdown, or a location's region and
+  sub-areas, or which move and item a TM/HM machine corresponds to — each chains straight into
+  Get Item/Get Move by an output named/typed to match, no adapter component (v4.0.0)
+- Drill from a region down to its pokedexes down to its full species roster, or from a species'
+  egg group/growth rate straight to that group's members or that rate's level curve, or from a
+  stat straight to which natures raise or lower it — every step reuses a shared response cache so
+  a core-lookup-plus-breakout pair never double-fetches the same endpoint (v4.0.0 round 5)

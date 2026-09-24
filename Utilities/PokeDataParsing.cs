@@ -560,5 +560,50 @@ namespace PokeData
                 FlattenEvolutionChain(childObj, parents, children, triggers);
             }
         }
+
+        // Flattens a berry's flavors[] array ({potency, flavor:{name}} pairs) into two
+        // positionally-parallel lists. Berries always carry all 5 flavors (spicy/dry/sweet/
+        // bitter/sour), potency 0 meaning "not present" rather than the entry being absent.
+        public static void ParseBerryFlavors(JArray flavorsArray, List<string> names, List<int> potencies)
+        {
+            if (flavorsArray == null) return;
+            foreach (var entry in flavorsArray)
+            {
+                names.Add(SafeString(entry, "flavor", "name"));
+                potencies.Add((int?)SafeChild(entry, "potency") ?? 0);
+            }
+        }
+
+        // item — a pokedex's pokemon_entries[] nests one level deeper than NamesToList expects:
+        // [{ entry_number, pokemon_species: { name, url } }, ...]. Returned in the array's own
+        // order (PokeAPI already orders these by entry_number).
+        public static List<string> PokedexSpeciesNames(JArray pokemonEntries)
+        {
+            var list = new List<string>();
+            if (pokemonEntries == null) return list;
+            foreach (var entry in pokemonEntries)
+                list.Add(SafeString(entry, "pokemon_species", "name"));
+            return list;
+        }
+
+        // record — a growth-rate's levels[] array ({level, experience} pairs) into two
+        // positionally-parallel lists, in the array's own order (PokeAPI already orders by level).
+        public static void ParseGrowthRateLevels(JArray levelsArray, List<int> levels, List<int> experience)
+        {
+            if (levelsArray == null) return;
+            foreach (var entry in levelsArray)
+            {
+                levels.Add((int?)SafeChild(entry, "level") ?? 0);
+                experience.Add((int?)SafeChild(entry, "experience") ?? 0);
+            }
+        }
+
+        // record — a stat's affecting_natures.{increase,decrease}[] ({name, url} pairs, same
+        // shape NamesToList already handles) into two separate name lists.
+        public static void ParseStatAffectingNatures(JObject parsedStat, List<string> increasing, List<string> decreasing)
+        {
+            increasing.AddRange(NamesToList(SafeArray(parsedStat, "affecting_natures", "increase")));
+            decreasing.AddRange(NamesToList(SafeArray(parsedStat, "affecting_natures", "decrease")));
+        }
     }
 }

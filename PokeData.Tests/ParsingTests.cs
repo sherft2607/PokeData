@@ -1107,5 +1107,202 @@ namespace PokeData.Tests
         {
             Assert.Equal(expected, PokeDataParsing.IsOpaquePixel(alpha, threshold));
         }
+
+        // --- v4.0.0: ParseBerryFlavors (Get Berry / Get Berry Flavors) --------------------------
+
+        [Fact]
+        public void ParseBerryFlavors_FlattensPotencyAndNameInOrder()
+        {
+            var flavors = JArray.Parse(@"[
+                { ""potency"": 10, ""flavor"": { ""name"": ""spicy"" } },
+                { ""potency"": 0,  ""flavor"": { ""name"": ""dry"" } },
+                { ""potency"": 0,  ""flavor"": { ""name"": ""sweet"" } }
+            ]");
+
+            var names = new List<string>();
+            var potencies = new List<int>();
+            PokeDataParsing.ParseBerryFlavors(flavors, names, potencies);
+
+            Assert.Equal(new[] { "spicy", "dry", "sweet" }, names);
+            Assert.Equal(new[] { 10, 0, 0 }, potencies);
+        }
+
+        [Fact]
+        public void ParseBerryFlavors_NullArray_LeavesListsEmpty_DoesNotThrow()
+        {
+            var names = new List<string>();
+            var potencies = new List<int>();
+
+            var ex = Record.Exception(() => PokeDataParsing.ParseBerryFlavors(null, names, potencies));
+
+            Assert.Null(ex);
+            Assert.Empty(names);
+            Assert.Empty(potencies);
+        }
+
+        [Fact]
+        public void ParseBerryFlavors_MissingPotencyField_DefaultsToZero()
+        {
+            var flavors = JArray.Parse(@"[{ ""flavor"": { ""name"": ""bitter"" } }]");
+
+            var names = new List<string>();
+            var potencies = new List<int>();
+            PokeDataParsing.ParseBerryFlavors(flavors, names, potencies);
+
+            Assert.Equal(new[] { "bitter" }, names);
+            Assert.Equal(new[] { 0 }, potencies);
+        }
+
+        // --- v4.0.0: NamesToList reused for Get Location Areas -----------------------------------
+
+        [Fact]
+        public void NamesToList_LocationAreaShape_FlattensAreaNamesInOrder()
+        {
+            var areas = JArray.Parse(@"[
+                { ""name"": ""canalave-city-area"", ""url"": ""https://pokeapi.co/api/v2/location-area/1/"" },
+                { ""name"": ""canalave-city-area-2"", ""url"": ""https://pokeapi.co/api/v2/location-area/2/"" }
+            ]");
+
+            var result = PokeDataParsing.NamesToList(areas);
+
+            Assert.Equal(new[] { "canalave-city-area", "canalave-city-area-2" }, result);
+        }
+
+        // --- v4.0.0 round 5: NamesToList reused for Get Region Locations/Pokedexes and
+        //     Get Egg Group's species list ----------------------------------------------------
+
+        [Fact]
+        public void NamesToList_RegionLocationsShape_FlattensNamesInOrder()
+        {
+            var locations = JArray.Parse(@"[
+                { ""name"": ""celadon-city"", ""url"": ""https://pokeapi.co/api/v2/location/67/"" },
+                { ""name"": ""cerulean-city"", ""url"": ""https://pokeapi.co/api/v2/location/68/"" }
+            ]");
+
+            var result = PokeDataParsing.NamesToList(locations);
+
+            Assert.Equal(new[] { "celadon-city", "cerulean-city" }, result);
+        }
+
+        [Fact]
+        public void NamesToList_RegionPokedexesShape_FlattensNamesInOrder()
+        {
+            var pokedexes = JArray.Parse(@"[
+                { ""name"": ""kanto"", ""url"": ""https://pokeapi.co/api/v2/pokedex/2/"" },
+                { ""name"": ""letsgo-kanto"", ""url"": ""https://pokeapi.co/api/v2/pokedex/26/"" }
+            ]");
+
+            var result = PokeDataParsing.NamesToList(pokedexes);
+
+            Assert.Equal(new[] { "kanto", "letsgo-kanto" }, result);
+        }
+
+        [Fact]
+        public void NamesToList_EggGroupSpeciesShape_FlattensNamesInOrder()
+        {
+            var species = JArray.Parse(@"[
+                { ""name"": ""bulbasaur"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/1/"" },
+                { ""name"": ""charmander"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/4/"" }
+            ]");
+
+            var result = PokeDataParsing.NamesToList(species);
+
+            Assert.Equal(new[] { "bulbasaur", "charmander" }, result);
+        }
+
+        // --- v4.0.0 round 5: PokedexSpeciesNames (Get Pokedex Species) ---------------------------
+
+        [Fact]
+        public void PokedexSpeciesNames_FlattensNestedPokemonSpeciesNameInOrder()
+        {
+            var entries = JArray.Parse(@"[
+                { ""entry_number"": 1, ""pokemon_species"": { ""name"": ""bulbasaur"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/1/"" } },
+                { ""entry_number"": 2, ""pokemon_species"": { ""name"": ""ivysaur"", ""url"": ""https://pokeapi.co/api/v2/pokemon-species/2/"" } }
+            ]");
+
+            var result = PokeDataParsing.PokedexSpeciesNames(entries);
+
+            Assert.Equal(new[] { "bulbasaur", "ivysaur" }, result);
+        }
+
+        [Fact]
+        public void PokedexSpeciesNames_NullArray_ReturnsEmptyList_DoesNotThrow()
+        {
+            var ex = Record.Exception(() => PokeDataParsing.PokedexSpeciesNames(null));
+
+            Assert.Null(ex);
+            Assert.Empty(PokeDataParsing.PokedexSpeciesNames(null));
+        }
+
+        // --- v4.0.0 round 5: ParseGrowthRateLevels (Get Growth Rate Levels) ----------------------
+
+        [Fact]
+        public void ParseGrowthRateLevels_FlattensLevelAndExperienceInOrder()
+        {
+            var levelsArray = JArray.Parse(@"[
+                { ""level"": 1, ""experience"": 0 },
+                { ""level"": 2, ""experience"": 10 },
+                { ""level"": 3, ""experience"": 33 }
+            ]");
+
+            var levels = new List<int>();
+            var experience = new List<int>();
+            PokeDataParsing.ParseGrowthRateLevels(levelsArray, levels, experience);
+
+            Assert.Equal(new[] { 1, 2, 3 }, levels);
+            Assert.Equal(new[] { 0, 10, 33 }, experience);
+        }
+
+        [Fact]
+        public void ParseGrowthRateLevels_NullArray_LeavesListsEmpty_DoesNotThrow()
+        {
+            var levels = new List<int>();
+            var experience = new List<int>();
+
+            var ex = Record.Exception(() => PokeDataParsing.ParseGrowthRateLevels(null, levels, experience));
+
+            Assert.Null(ex);
+            Assert.Empty(levels);
+            Assert.Empty(experience);
+        }
+
+        // --- v4.0.0 round 5: ParseStatAffectingNatures (Get Stat Affecting Natures) --------------
+
+        [Fact]
+        public void ParseStatAffectingNatures_SplitsIncreaseAndDecreaseNames()
+        {
+            var stat = JObject.Parse(@"{
+                ""affecting_natures"": {
+                    ""increase"": [
+                        { ""name"": ""lonely"", ""url"": ""https://pokeapi.co/api/v2/nature/6/"" },
+                        { ""name"": ""adamant"", ""url"": ""https://pokeapi.co/api/v2/nature/11/"" }
+                    ],
+                    ""decrease"": [
+                        { ""name"": ""bold"", ""url"": ""https://pokeapi.co/api/v2/nature/2/"" }
+                    ]
+                }
+            }");
+
+            var increasing = new List<string>();
+            var decreasing = new List<string>();
+            PokeDataParsing.ParseStatAffectingNatures(stat, increasing, decreasing);
+
+            Assert.Equal(new[] { "lonely", "adamant" }, increasing);
+            Assert.Equal(new[] { "bold" }, decreasing);
+        }
+
+        [Fact]
+        public void ParseStatAffectingNatures_MissingField_ReturnsEmptyLists_DoesNotThrow()
+        {
+            var stat = JObject.Parse(@"{ ""name"": ""hp"" }");
+
+            var increasing = new List<string>();
+            var decreasing = new List<string>();
+            var ex = Record.Exception(() => PokeDataParsing.ParseStatAffectingNatures(stat, increasing, decreasing));
+
+            Assert.Null(ex);
+            Assert.Empty(increasing);
+            Assert.Empty(decreasing);
+        }
     }
 }

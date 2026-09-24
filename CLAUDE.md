@@ -14,11 +14,14 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
 <!-- pr:begin state -->
 ## Current build state
 
-- Phase: 15 of 15 — Package + Ship (v3.0.0 shipped)
+- Phase: 15 of 15 — Package + Ship (v4.0.0 round 5 built/tested; packaging held pending Gate 6)
 - Gates passed: 1 (API overview), 2 (structure), 3 (AEC features — none), 4 (auto-cleared — 0
   FAILED/PARTIAL calls), 5 (auto-cleared — no auth to test), 6 (manual live test — initial build,
-  extend-round-1 Batch 1, v2.0.0's 16 components, and v3.0.0's 5 components all confirmed by the
-  plugin author in a live Rhino session)
+  extend-round-1 Batch 1, v2.0.0's 16 components, v3.0.0's 5 components, and v4.0.0's first batch
+  of 5 components (Berry/Location/Machine) all confirmed by the plugin author in a live Rhino
+  session). v4.0.0 round 5's 9 components (Region/Pokedex/Egg Group/Growth Rate/Stat) are
+  built/tested but still awaiting their own Gate 6 live-Rhino confirmation before the `.yak`
+  packages are rebuilt (demos/README.md has the manual spec).
 - v2.0.0 and v3.0.0 both shipped: tagged, pushed, `publish.yml` built each GitHub Release (8
   assets each), and both are live on the Yak Package Manager (`yak.rhino3d.com/packages/pokedata`,
   confirmed at v3.0.0). Food4Rhino listing still pending — the plugin author's next step.
@@ -33,10 +36,23 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
   pokeapi.co. v3.0.0 round (5 components, focused on generative geometry / battle optimization) —
   new Generative tab: Evolution Tree, Sprite To Voxel, Stat Growth, Team Synergy; Display tab
   gained Rhino Type Material. No new endpoints — reuses pokemon-species_read/evolution-chain_read
-  (Evolution Tree) and type_read (Team Synergy); the rest are pure math/geometry.
+  (Evolution Tree) and type_read (Team Synergy); the rest are pure math/geometry. v4.0.0 round
+  (5 components, chaining-focused) — Get Berry + Get Berry Flavors (Items tab), Get Location +
+  Get Location Areas (Data tab), Get Machine (Moves tab) — 3 new endpoints
+  (berry/location/machine) validated live against pokeapi.co this session. Every new lookup
+  exposes at least one output named/typed to match an existing component's input exactly
+  (`Item Name Or ID` → Get Item, `Move Name Or ID` → Get Move) for direct canvas chaining with no
+  adapter component — the plugin author's explicit request for this round. v4.0.0 round 5
+  (9 components, before the round's first tag) — Data tab gained Get Region/Get Region Locations/
+  Get Region Pokedexes and Get Pokedex/Get Pokedex Species; Pokemon tab gained Get Egg Group and
+  Get Growth Rate/Get Growth Rate Levels; Stats tab gained Get Stat and Get Stat Affecting
+  Natures — 5 new endpoints (region/pokedex/egg-group/growth-rate/stat) validated live against
+  pokeapi.co this session. `PokeDataClient` gained a shared response cache (keyed by request URL)
+  so every core-lookup-plus-breakout pair fetches its shared endpoint once per solve, not once per
+  component.
 - Pre-1.0.0 retrofit: session stamped `please_rest_version` (was missing/pre-1.0.0); Release
   `PropertyGroup` confirmed present; `.yak` packaging re-verified for all 3 targets each round
-- Last active: 2026-09-18
+- Last active: 2026-09-24
 <!-- pr:end state -->
 
 <!-- pr:begin platform -->
@@ -59,16 +75,16 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
 <!-- pr:begin structure -->
 ## Plugin structure
 
-13 subcategories, 28 components. No Auth tab, no JSON Builders folder (no request bodies — every
+13 subcategories, 42 components. No Auth tab, no JSON Builders folder (no request bodies — every
 endpoint is a plain GET), no ButtonComponent.
 
-- **Pokemon** — Get Pokemon, Get Pokemon Batch, Get Pokemon Species, Sprite Downloader, Pokemon Cry, Batch Downloader
+- **Pokemon** — Get Pokemon, Get Pokemon Batch, Get Pokemon Species, Sprite Downloader, Pokemon Cry, Batch Downloader, Get Egg Group, Get Growth Rate, Get Growth Rate Levels
 - **Types** — Get Type, Get Type Matrix, Type Matchup, Dual Type Matchup
 - **Evolution** — Get Evolution Chain
-- **Moves** — Get Move, Get Ability
-- **Items** — Get Item
-- **Stats** — Get Nature
-- **Data** — Get Generation, Pokemon Filter
+- **Moves** — Get Move, Get Ability, Get Machine
+- **Items** — Get Item, Get Berry, Get Berry Flavors
+- **Stats** — Get Nature, Get Stat, Get Stat Affecting Natures
+- **Data** — Get Generation, Pokemon Filter, Get Location, Get Location Areas, Get Region, Get Region Locations, Get Region Pokedexes, Get Pokedex, Get Pokedex Species
 - **Geometry** — Pokemon Dimensions
 - **Visualization** — Stat Radar, Stat Mesh 3D
 - **Display** — Type Palette, Canvas Sprite Card, Rhino Type Material
@@ -177,16 +193,48 @@ None. PokeAPI has no write endpoints, so there are no request bodies to construc
   direct cast. `Sprite Downloader` (the producer) and `Canvas Sprite Card` (which only passes the
   Bitmap through untouched, never casts it) were both already correct — this was specific to a
   consumer that needs to use the Bitmap's actual pixels.
+- **v4.0.0's chaining outputs are a naming convention, not a mechanism.** `Get Berry`'s
+  `Item Name Or ID` and `Get Machine`'s `Move Name Or ID`/`Item Name Or ID` are plain string
+  outputs — there is no special wiring or adapter type. They chain into `Get Item`/`Get Move`
+  only because their name, nickname, type, and access match those components' existing inputs
+  exactly (the same convention `PokemonTypePresetComponent` → `GetTypeComponent` already used).
+- **`Get Machine` has no name-based lookup** — PokeAPI's `machine` resource has no `name` field,
+  only a numeric `id`, unlike every other lookup component in this plugin. Its input is
+  `Machine ID` (integer), not a `[Thing] Name Or ID` (string).
+- **`Get Location Areas` reuses `NamesToList`** (the same helper `Get Pokemon Species`'s
+  `Egg Groups` output uses) rather than a new parsing helper — `location.areas[]` already has a
+  top-level `name` field per entry, the same shape `NamesToList` was written for.
+- **`PokeDataClient` now carries a shared response cache** (v4.0.0 round 5) — a static
+  `ConcurrentDictionary<string, Tuple<bool,string,string>>` keyed by request URL, checked before
+  every HTTP call and populated only on success (a failure is never cached, so a transient error
+  doesn't stick). This supersedes the earlier statement that "Get Berry and Get Berry Flavors both
+  call `berry_read` independently" — that was true when written (v4.0.0's first batch), but the
+  cache added in round 5 now means every core-lookup-plus-breakout pair (Berry/Location, and the
+  round-5 Region/Pokedex/Growth Rate/Stat pairs) shares one fetch per unique URL per solve. It's
+  still not cross-solve persistence — a fresh solve clears nothing, but a new solve's first call to
+  a previously-seen URL still hits the cache since it's static for the plugin's lifetime.
+- **`Get Pokedex Species` needs its own parsing helper, not `NamesToList`** —
+  `pokedex.pokemon_entries[]` nests one level deeper (`{entry_number, pokemon_species:{name,url}}`)
+  than the flat `{name,url}` shape `NamesToList` handles, so `PokedexSpeciesNames` reads
+  `pokemon_species.name` per entry instead. `Get Region Locations`/`Get Region Pokedexes` and
+  `Get Egg Group`'s species list, by contrast, are flat `{name,url}` arrays and do reuse
+  `NamesToList`.
+- **`Get Egg Group` isn't split into a core + breakout pair** like Berry/Location/Region/Pokedex —
+  it's already small (one scalar + one list), so a second component would just be overhead.
+- **`Get Stat Affecting Natures` is the one reverse-lookup component in this round** — every other
+  new component chains *from* an existing output *to* a new one; this one exists so a stat can
+  chain back *to* `Get Nature`, closing the loop in the other direction.
 <!-- pr:end decisions -->
 
 <!-- pr:begin limitations -->
 ## Known limitations
 
-- **39 of PokeAPI's 48 resources are still not implemented.** pokemon, type, pokemon-species,
-  evolution-chain, move, ability, generation, item, and nature now trace to a confirmed workflow.
-  The rest (berries, contests, encounters, games, locations, machines, and the remaining
-  move/pokemon taxonomy resources) follow the same uniform list+detail pattern and can be added
-  via `/rest-add-feature` if a workflow needs them — see `spec/plugin-spec.json`'s `skipped_for_v1`.
+- **31 of PokeAPI's 48 resources are still not implemented.** pokemon, type, pokemon-species,
+  evolution-chain, move, ability, generation, item, nature, berry, location, machine, region,
+  pokedex, egg-group, growth-rate, and stat now trace to a confirmed workflow. The rest (contests,
+  encounters, games, versions, item/move taxonomy resources, and a few pokemon taxonomy resources)
+  follow the same uniform list+detail pattern and can be added via `/rest-add-feature` if a
+  workflow needs them — see `spec/plugin-spec.json`'s `skipped_for_v1`.
 - **Phase 12 Job A/B (live MCP demo build + smoke test) degraded to manual** — no Grasshopper MCP
   bridge (RhinoMCP / cordyceps / SandMartin) was available in the session that built this plugin.
   `demos/README.md` holds the manual build spec for all 5 demo canvases instead of built `.gh`
@@ -195,10 +243,13 @@ None. PokeAPI has no write endpoints, so there are no request bodies to construc
   F5), so Phase 7 (API testing) was completed via the plugin author's manual verification against
   the live API instead of the automated `pr-api-tester` run.
 - **Gate 6 has now been confirmed live in Rhino by the plugin author**, covering the original
-  build, both v2.0.0 batches (16 components), and v3.0.0 (5 components) — `demos/README.md`'s
-  per-round sections hold the manual check steps that were run. The demos themselves remain
-  hand-built rather than pre-made `.gh` files, since no Grasshopper MCP bridge was available in
-  the session that generated this plugin.
+  build, both v2.0.0 batches (16 components), v3.0.0 (5 components), and v4.0.0's first batch
+  (Berry/Location/Machine, 5 components) — `demos/README.md`'s per-round sections hold the manual
+  check steps that were run. v4.0.0 round 5 (Region/Pokedex/Egg Group/Growth Rate/Stat, 9
+  components) is still awaiting its Gate 6 confirmation — the `.yak` packages are deliberately not
+  rebuilt for round 5 until that passes. The demos themselves remain hand-built rather than
+  pre-made `.gh` files, since no Grasshopper MCP bridge was available in the session that generated
+  this plugin.
 <!-- pr:end limitations -->
 
 <!-- pr:begin todo -->

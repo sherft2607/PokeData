@@ -173,3 +173,77 @@ Note: Gate 5 (auth test in Rhino) is skipped for this build — there is no Auth
     Grasshopper.Kernel.Types.GH_ObjectWrapper and reading .Value first. Verified Sprite
     Downloader (producer) and Canvas Sprite Card (untouched passthrough) were already correct.
     Rebuilt + tested all 3 targets, 106/106 unit tests still passing (no pure-logic change).
+
+## v4.0.0 extend round (rest-add-feature — berry / location / machine)
+
+[x] call-library.json / call-library-validated.json [MCP] extract + validate 3 new endpoints:
+    berry_read, location_read, machine_read (merge into existing files, do not rewrite entries;
+    live GET /berry/1, /location/1, /machine/1 all 200 this session)
+[x] GetBerry.cs                  [BUILD] new Items tab entry — Berry Name Or ID -> growth/size/
+    smoothness/soil-dryness/gift stats + Item Name Or ID (chains into GetItem.cs)
+[x] GetBerryFlavors.cs           [BUILD] Items tab — Berry Name Or ID -> Flavor Names/Potencies
+    parallel lists (reuses berry_read, cached, no re-fetch)
+[x] GetLocation.cs               [BUILD] Data tab — Location Name Or ID -> Name, Region
+[x] GetLocationAreas.cs          [BUILD] Data tab — Location Name Or ID -> Area Names list
+    (reuses location_read, cached, no re-fetch)
+[x] GetMachine.cs                [BUILD] Moves tab — Machine ID -> Version Group, Move Name Or ID
+    (chains into GetMove.cs), Item Name Or ID (chains into GetItem.cs)
+[x] PokeDataParsing.cs           [BUILD] +ParseBerryFlavors; location areas[] reuses existing
+    NamesToList helper (testable, no RhinoCommon reference)
+[x] icons.json + Icons/*.png     [MCP]   5 new icons rendered + embedded, user-approved
+[x] PokeData.Tests/ParsingTests.cs [BUILD] +4 tests for new pure-logic parsing helpers (110/110 passing)
+[x] dotnet build x 3 targets     [BUILD] net48 / net7.0-windows / net7.0 all green
+[x] dotnet test                  [BUILD] all green
+[x] demos/README.md v4.0.0 additions + Gate 6 live re-test — confirmed by plugin author live in
+    Rhino: all 5 components (Get Berry, Get Berry Flavors, Get Location, Get Location Areas,
+    Get Machine) compute with OK status; Get Berry's Item Name Or ID and Get Machine's
+    Move Name Or ID / Item Name Or ID chain directly into Get Item / Get Move with zero issues
+[x] docs/ incremental update for v4.0.0
+[x] PokeData.csproj Version -> 4.0.0 + docs/changelog.md entry
+[x] README.md / CLAUDE.md regenerated for v4.0.0
+[x] /rest-package rebuild for v4.0.0 (3 .yak in dist/)
+[ ] git commit + tag v4.0.0 + push (user's call)
+
+## v4.0.0 round 5 (rest-add-feature — region / pokedex / egg group / growth rate / stat)
+
+[x] call-library.json / call-library-validated.json [MCP] extract + validate 5 new endpoints:
+    region_read, pokedex_read, egg-group_read, growth-rate_read, stat_read (live GET /region/1,
+    /pokedex/2, /egg-group/1, /growth-rate/1, /stat/1 + /stat/2 all 200 this session)
+[x] GetRegion.cs               [BUILD] Data tab — Region Name Or ID -> Name, Main Generation
+    (chains off Get Location's Region output)
+[x] GetRegionLocations.cs      [BUILD] Data tab — Region Name Or ID -> Location Names list
+    (reuses region_read via shared response cache, no re-fetch)
+[x] GetRegionPokedexes.cs      [BUILD] Data tab — Region Name Or ID -> Pokedex Name Or ID list
+    (reuses region_read via shared response cache; chains into GetPokedex.cs)
+[x] GetPokedex.cs              [BUILD] Data tab — Pokedex Name Or ID -> Name, Is Main Series
+[x] GetPokedexSpecies.cs       [BUILD] Data tab — Pokedex Name Or ID -> Species Names list
+    (reuses pokedex_read via shared response cache; nested pokemon_entries[].pokemon_species.name)
+[x] GetEggGroup.cs             [BUILD] Pokemon tab — Egg Group Name Or ID -> Name, Species Names
+    (chains off Get Pokemon Species' Egg Groups list, per-item)
+[x] GetGrowthRate.cs           [BUILD] Pokemon tab — Growth Rate Name Or ID -> Formula, Max Level
+    (chains off Get Pokemon Species' Growth Rate output)
+[x] GetGrowthRateLevels.cs     [BUILD] Pokemon tab — Growth Rate Name Or ID -> Levels/Experience
+    parallel lists (reuses growth-rate_read via shared response cache, no re-fetch)
+[x] GetStat.cs                 [BUILD] Stats tab — Stat Name Or ID -> Is Battle Only
+    (chains off Get Nature's Increased/Decreased Stat and Get Pokemon's Stat Names)
+[x] GetStatAffectingNatures.cs [BUILD] Stats tab — Stat Name Or ID -> Increasing/Decreasing
+    Natures lists (reuses stat_read via shared response cache; reverse lookup of Get Nature)
+[x] PokeDataClient.cs          [BUILD] +ConcurrentDictionary response cache keyed by request URL,
+    shared statically across every component instance — a "core lookup + list breakout" pair
+    calling the same endpoint for the same ID now only hits the network once (benefits every
+    existing endpoint too, not just this round's)
+[x] PokeDataParsing.cs         [BUILD] +PokedexSpeciesNames, +ParseGrowthRateLevels,
+    +ParseStatAffectingNatures; region/egg-group species lists reuse existing NamesToList
+[x] icons.json + Icons/*.png   [MCP]   9 new icons rendered + embedded, user-approved
+[x] PokeData.Tests/ParsingTests.cs [BUILD] +9 tests for new pure-logic parsing helpers (119/119 passing)
+[x] dotnet build x 3 targets   [BUILD] net48 / net7.0-windows / net7.0 all green, 0 errors
+[x] dotnet test                [BUILD] all green
+[ ] demos/README.md round-5 additions + Gate 6 live re-test (spec pending; plugin author is
+    running this live in Rhino before final packaging)
+[x] docs/ incremental update for round 5
+[ ] PokeData.csproj Version -> 4.0.0 already set (round 5 folds into the same unreleased v4.0.0,
+    same pattern as v2.0.0's batch 2) + docs/changelog.md entry
+[x] README.md / CLAUDE.md regenerated for round 5
+[ ] /rest-package rebuild for v4.0.0 with round-5 components (held — user is completing Gate 6
+    live Rhino verification for all 9 new components first)
+[ ] git commit + tag v4.0.0 + push (user's call, held until Gate 6 + repackage)

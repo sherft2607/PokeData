@@ -241,5 +241,173 @@
     "example_response": {},
     "notes": "v2.1.0 — increased_stat/decreased_stat/likes_flavor/hates_flavor are JSON null for neutral natures (e.g. hardy)",
     "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "berry_read",
+    "component": "GetBerryComponent",
+    "method": "GET",
+    "url_template": "/api/v2/berry/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — also used by GetBerryFlavorsComponent (same endpoint, cached, flattens flavors[])",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "location_read",
+    "component": "GetLocationComponent",
+    "method": "GET",
+    "url_template": "/api/v2/location/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — also used by GetLocationAreasComponent (same endpoint, cached, flattens areas[])",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "machine_read",
+    "component": "GetMachineComponent",
+    "method": "GET",
+    "url_template": "/api/v2/machine/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 — machine is looked up by numeric ID only, no name field on this resource",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "region_read",
+    "component": "GetRegionComponent",
+    "method": "GET",
+    "url_template": "/api/v2/region/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetRegionLocationsComponent and GetRegionPokedexesComponent (same endpoint, cached, flattens locations[]/pokedexes[])",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "pokedex_read",
+    "component": "GetPokedexComponent",
+    "method": "GET",
+    "url_template": "/api/v2/pokedex/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetPokedexSpeciesComponent (same endpoint, cached, flattens pokemon_entries[].pokemon_species.name)",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "egg-group_read",
+    "component": "GetEggGroupComponent",
+    "method": "GET",
+    "url_template": "/api/v2/egg-group/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "growth-rate_read",
+    "component": "GetGrowthRateComponent",
+    "method": "GET",
+    "url_template": "/api/v2/growth-rate/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetGrowthRateLevelsComponent (same endpoint, cached, flattens levels[])",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "stat_read",
+    "component": "GetStatComponent",
+    "method": "GET",
+    "url_template": "/api/v2/stat/{id}/",
+    "base_url": "https://pokeapi.co/",
+    "auth_in": "none",
+    "path_params": [
+      { "name": "id", "type": "integer", "required": true }
+    ],
+    "query_params": [],
+    "headers": {},
+    "body_schema": null,
+    "body_required": [],
+    "content_type": "application/json",
+    "response_schema": null,
+    "example_request": {},
+    "example_response": {},
+    "notes": "v4.0.0 round 5 — also used by GetStatAffectingNaturesComponent (same endpoint, cached, flattens affecting_natures.increase[]/decrease[])",
+    "status": "EXTRACTED"
   }
 ]

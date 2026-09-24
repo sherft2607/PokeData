@@ -134,6 +134,59 @@
             { "name": "Bitmaps", "nickname": "B", "type": "generic", "access": "list" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
           ]
+        },
+        {
+          "class_name": "GetEggGroupComponent",
+          "file_name": "GetEggGroup.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "egg-group_read",
+          "workflow": "v4.0.0 round 5: egg group member roster, chains off Get Pokemon Species' Egg Groups list",
+          "note": "Small enough (one scalar + one list) that it isn't split like Berry/Location/Region/Pokedex — Egg Group Name Or ID matches one entry of Get Pokemon Species' Egg Groups output for per-item chaining.",
+          "inputs": [
+            { "name": "Egg Group Name Or ID", "nickname": "EG", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item" },
+            { "name": "Species Names", "nickname": "SN", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetGrowthRateComponent",
+          "file_name": "GetGrowthRate.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "growth-rate_read",
+          "workflow": "v4.0.0 round 5: growth rate formula lookup, chains off Get Pokemon Species' Growth Rate output",
+          "inputs": [
+            { "name": "Growth Rate Name Or ID", "nickname": "GR", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Formula", "nickname": "F", "type": "string", "access": "item" },
+            { "name": "Max Level", "nickname": "ML", "type": "integer", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetGrowthRateLevelsComponent",
+          "file_name": "GetGrowthRateLevels.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "growth-rate_read",
+          "workflow": "v4.0.0 round 5: level/experience curve, split out from Get Growth Rate so the curve can feed a plot directly",
+          "note": "Reuses growth-rate_read — the shared PokeDataClient response cache means calling this alongside Get Growth Rate for the same rate only fetches once.",
+          "inputs": [
+            { "name": "Growth Rate Name Or ID", "nickname": "GR", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Levels", "nickname": "L", "type": "integer", "access": "list" },
+            { "name": "Experience", "nickname": "E", "type": "integer", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
         }
       ]
     },
@@ -278,6 +331,25 @@
           ]
         },
         {
+          "class_name": "GetMachineComponent",
+          "file_name": "GetMachine.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "machine_read",
+          "workflow": "v4.0.0: TM/HM lookup — which move a machine teaches and which item it corresponds to, for move/item chaining tools",
+          "note": "machine is looked up by numeric ID only (PokeAPI has no name for machines). Move Name Or ID and Item Name Or ID outputs are named/typed identically to GetMoveComponent's and GetItemComponent's inputs, so a machine chains straight into either without a glue component.",
+          "inputs": [
+            { "name": "Machine ID", "nickname": "MI", "type": "integer", "access": "item", "default": 1 }
+          ],
+          "outputs": [
+            { "name": "Version Group", "nickname": "VG", "type": "string", "access": "item" },
+            { "name": "Move Name Or ID", "nickname": "M", "type": "string", "access": "item" },
+            { "name": "Item Name Or ID", "nickname": "I", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
           "class_name": "GetAbilityComponent",
           "file_name": "GetAbility.cs",
           "type": "component",
@@ -320,6 +392,49 @@
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
             { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
           ]
+        },
+        {
+          "class_name": "GetBerryComponent",
+          "file_name": "GetBerry.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "berry_read",
+          "workflow": "v4.0.0: berry lookup — growth/size/firmness/gift stats for berry-planning tools, alongside the existing item lookup",
+          "note": "Every berry is also an item (berry.item.name); the Item Name Or ID output is named/typed identically to GetItemComponent's input so a berry chains straight into Get Item for full item data (category, cost, sprite, effect text) without any glue component.",
+          "inputs": [
+            { "name": "Berry Name Or ID", "nickname": "B", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item" },
+            { "name": "Growth Time", "nickname": "GT", "type": "integer", "access": "item" },
+            { "name": "Max Harvest", "nickname": "MH", "type": "integer", "access": "item" },
+            { "name": "Size", "nickname": "SZ", "type": "integer", "access": "item" },
+            { "name": "Smoothness", "nickname": "SM", "type": "integer", "access": "item" },
+            { "name": "Soil Dryness", "nickname": "SD", "type": "integer", "access": "item" },
+            { "name": "Natural Gift Power", "nickname": "NP", "type": "integer", "access": "item" },
+            { "name": "Natural Gift Type", "nickname": "NG", "type": "string", "access": "item" },
+            { "name": "Item Name Or ID", "nickname": "I", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetBerryFlavorsComponent",
+          "file_name": "GetBerryFlavors.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "berry_read",
+          "workflow": "v4.0.0: berry flavor breakdown — split out from Get Berry so the flavor/potency pair can feed list-based tools (e.g. Pokemon Filter) without cluttering the core berry lookup",
+          "note": "Reuses berry_read (same endpoint as Get Berry, cached per name/id — not refetched); flattens the flavors[] array into two positionally-parallel lists.",
+          "inputs": [
+            { "name": "Berry Name Or ID", "nickname": "B", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Flavor Names", "nickname": "FN", "type": "string", "access": "list" },
+            { "name": "Potencies", "nickname": "P", "type": "integer", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
         }
       ]
     },
@@ -343,6 +458,40 @@
             { "name": "Decreased Stat", "nickname": "DS", "type": "string", "access": "item" },
             { "name": "Liked Flavor", "nickname": "LF", "type": "string", "access": "item" },
             { "name": "Disliked Flavor", "nickname": "DF", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetStatComponent",
+          "file_name": "GetStat.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "stat_read",
+          "workflow": "v4.0.0 round 5: is-battle-only flag, chains off Get Nature's Increased/Decreased Stat and Get Pokemon's Stat Names",
+          "inputs": [
+            { "name": "Stat Name Or ID", "nickname": "ST", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Is Battle Only", "nickname": "IB", "type": "boolean", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetStatAffectingNaturesComponent",
+          "file_name": "GetStatAffectingNatures.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "stat_read",
+          "workflow": "v4.0.0 round 5: reverse lookup of Get Nature — which natures increase/decrease a given stat",
+          "note": "Reuses stat_read — the shared PokeDataClient response cache means calling this alongside Get Stat for the same stat only fetches once. Increasing/Decreasing Natures outputs feed Get Nature per entry.",
+          "inputs": [
+            { "name": "Stat Name Or ID", "nickname": "ST", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Increasing Natures", "nickname": "IN", "type": "string", "access": "list" },
+            { "name": "Decreasing Natures", "nickname": "DN", "type": "string", "access": "list" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
             { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
           ]
@@ -391,6 +540,125 @@
             { "name": "Filtered Values", "nickname": "FV", "type": "number", "access": "list" },
             { "name": "Match Indices", "nickname": "MI", "type": "integer", "access": "list" },
             { "name": "Status", "nickname": "S", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetLocationComponent",
+          "file_name": "GetLocation.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "location_read",
+          "workflow": "v4.0.0: location lookup — region context for location-scoped tools, alongside Get Generation's generation-scoped roster",
+          "inputs": [
+            { "name": "Location Name Or ID", "nickname": "L", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item" },
+            { "name": "Region", "nickname": "RG", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetLocationAreasComponent",
+          "file_name": "GetLocationAreas.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "location_read",
+          "workflow": "v4.0.0: location area breakdown — split out from Get Location so the area list can feed list-based tools without cluttering the core location lookup",
+          "note": "Reuses location_read (same endpoint as Get Location, cached per name/id — not refetched); flattens the areas[] array of {name,url} references into a name list.",
+          "inputs": [
+            { "name": "Location Name Or ID", "nickname": "L", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Area Names", "nickname": "AN", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetRegionComponent",
+          "file_name": "GetRegion.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "region_read",
+          "workflow": "v4.0.0 round 5: region lookup — chains off Get Location's Region output",
+          "inputs": [
+            { "name": "Region Name Or ID", "nickname": "RG", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item" },
+            { "name": "Main Generation", "nickname": "MG", "type": "string", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetRegionLocationsComponent",
+          "file_name": "GetRegionLocations.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "region_read",
+          "workflow": "v4.0.0 round 5: region location breakdown, split out from Get Region so the location list can feed list-based tools",
+          "note": "Reuses region_read — the shared PokeDataClient response cache means calling this alongside Get Region / Get Region Pokedexes for the same region only fetches once. Location Names feeds Get Location per entry.",
+          "inputs": [
+            { "name": "Region Name Or ID", "nickname": "RG", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Location Names", "nickname": "LN", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetRegionPokedexesComponent",
+          "file_name": "GetRegionPokedexes.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "region_read",
+          "workflow": "v4.0.0 round 5: region pokedex breakdown, split out from Get Region so the pokedex list can feed list-based tools",
+          "note": "Reuses region_read — the shared PokeDataClient response cache means calling this alongside Get Region / Get Region Locations for the same region only fetches once. Pokedex Name Or ID output matches Get Pokedex's input exactly.",
+          "inputs": [
+            { "name": "Region Name Or ID", "nickname": "RG", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Pokedex Name Or ID", "nickname": "PX", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetPokedexComponent",
+          "file_name": "GetPokedex.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "pokedex_read",
+          "workflow": "v4.0.0 round 5: pokedex lookup — chains off Get Region Pokedexes' output",
+          "inputs": [
+            { "name": "Pokedex Name Or ID", "nickname": "PX", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Name", "nickname": "N", "type": "string", "access": "item" },
+            { "name": "Is Main Series", "nickname": "IM", "type": "boolean", "access": "item" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
+          ]
+        },
+        {
+          "class_name": "GetPokedexSpeciesComponent",
+          "file_name": "GetPokedexSpecies.cs",
+          "type": "component",
+          "role": "unit",
+          "endpoint_id": "pokedex_read",
+          "workflow": "v4.0.0 round 5: pokedex species roster, split out from Get Pokedex so the roster can feed list-based tools (same shape as Get Generation's Species Names)",
+          "note": "Reuses pokedex_read — the shared PokeDataClient response cache means calling this alongside Get Pokedex for the same dex only fetches once. Nests one level deeper than NamesToList (pokemon_entries[].pokemon_species.name), handled by the new PokedexSpeciesNames helper.",
+          "inputs": [
+            { "name": "Pokedex Name Or ID", "nickname": "PX", "type": "string", "access": "item", "default": "" }
+          ],
+          "outputs": [
+            { "name": "Species Names", "nickname": "SN", "type": "string", "access": "list" },
+            { "name": "Status", "nickname": "S", "type": "string", "access": "item" },
+            { "name": "Response", "nickname": "R", "type": "string", "access": "item" }
           ]
         }
       ]
@@ -664,11 +932,59 @@
       "to": "GetTypeComponent.Type Name",
       "nickname": "TN",
       "access": "item→item"
+    },
+    {
+      "from": "GetBerryComponent.Item Name Or ID",
+      "to": "GetItemComponent.Item Name Or ID",
+      "nickname": "I",
+      "access": "item→item"
+    },
+    {
+      "from": "GetMachineComponent.Move Name Or ID",
+      "to": "GetMoveComponent.Move Name Or ID",
+      "nickname": "M",
+      "access": "item→item"
+    },
+    {
+      "from": "GetMachineComponent.Item Name Or ID",
+      "to": "GetItemComponent.Item Name Or ID",
+      "nickname": "I",
+      "access": "item→item"
+    },
+    {
+      "from": "GetLocationComponent.Region",
+      "to": "GetRegionComponent.Region Name Or ID",
+      "nickname": "RG",
+      "access": "item→item"
+    },
+    {
+      "from": "GetRegionPokedexesComponent.Pokedex Name Or ID",
+      "to": "GetPokedexComponent.Pokedex Name Or ID",
+      "nickname": "PX",
+      "access": "list→item"
+    },
+    {
+      "from": "GetPokemonSpeciesComponent.Egg Groups",
+      "to": "GetEggGroupComponent.Egg Group Name Or ID",
+      "nickname": "EG",
+      "access": "list→item"
+    },
+    {
+      "from": "GetPokemonSpeciesComponent.Growth Rate",
+      "to": "GetGrowthRateComponent.Growth Rate Name Or ID",
+      "nickname": "GR",
+      "access": "item→item"
+    },
+    {
+      "from": "GetNatureComponent.Increased Stat",
+      "to": "GetStatComponent.Stat Name Or ID",
+      "nickname": "ST",
+      "access": "item→item"
     }
   ],
   "payload_contracts": [],
   "aec_features": [],
   "skipped_for_v1": [
-    { "resource": "berry, berry-firmness, berry-flavor, contest-type, contest-effect, super-contest-effect, encounter-method, encounter-condition, encounter-condition-value, evolution-trigger, gender, pokedex, version, version-group, item-attribute, item-category, item-fling-effect, item-pocket, location, location-area, pal-park-area, region, machine, move-ailment, move-battle-style, move-category, move-damage-class, move-learn-method, move-target, characteristic, egg-group, growth-rate, pokeathlon-stat, pokemon-color, pokemon-form, pokemon-habitat, pokemon-shape, stat", "reason": "not used by any confirmed workflow through v2.1.0 — PokeAPI has 48 resources total; pokemon, type, pokemon-species/evolution-chain, move, ability, generation, item, and nature now trace to a stated workflow (v2.1.0 added generation/item/nature). The rest are available via the same uniform pattern (list + detail by name/id) so can be added later with /rest-add-feature if a workflow needs them." }
+    { "resource": "berry-firmness, berry-flavor, contest-type, contest-effect, super-contest-effect, encounter-method, encounter-condition, encounter-condition-value, evolution-trigger, gender, version, version-group, item-attribute, item-category, item-fling-effect, item-pocket, location-area, pal-park-area, move-ailment, move-battle-style, move-category, move-damage-class, move-learn-method, move-target, characteristic, pokeathlon-stat, pokemon-color, pokemon-form, pokemon-habitat, pokemon-shape", "reason": "not used by any confirmed workflow through v4.0.0 round 5 — PokeAPI has 48 resources total; pokemon, type, pokemon-species/evolution-chain, move, ability, generation, item, nature, berry, location, machine, region, pokedex, egg-group, growth-rate, and stat now trace to a stated workflow (round 5 added region/pokedex/egg-group/growth-rate/stat). The rest are available via the same uniform pattern (list + detail by name/id) so can be added later with /rest-add-feature if a workflow needs them." }
   ]
 }

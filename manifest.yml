@@ -1,5 +1,5 @@
 name: pokedata
-version: 3.0.0
+version: 4.0.0
 authors:
   - Shandon Herft
 description: "Look up Pokemon, types, evolution chains, moves and abilities from PokeAPI directly on the Grasshopper canvas — with audio cries, type matchups, generative geometry, and battle-optimization solvers."

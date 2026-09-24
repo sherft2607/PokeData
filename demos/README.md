@@ -209,3 +209,58 @@ all with `Parent Species` = `eevee`.)
   `Status` = `OK`, `Material` is a non-null generic output, `Color` a yellow swatch. Then
   `Add To Document` = `true` with a Rhino document open: confirm a new "PokeData electric" material
   appears in Rhino's Materials panel.
+
+## v4.0.0 additions (Berry / Location / Machine)
+
+- **Get Berry** (new, Items tab) — `Berry Name Or ID` = `"cheri"`: `Status` = `OK`, `Growth Time` =
+  `3`, `Max Harvest` = `5`, `Size` = `20`, `Smoothness` = `25`, `Soil Dryness` = `15`,
+  `Natural Gift Power` = `60`, `Natural Gift Type` = `"fire"`, `Item Name Or ID` = `"cheri-berry"`.
+  Wire `Item Name Or ID` straight into `Get Item`'s `Item Name Or ID` input (same name/type/access)
+  — confirm `Get Item` resolves it with no adapter component, `Category` = `"other"` (in-battle item).
+- **Get Berry Flavors** (new, Items tab) — same `Berry Name Or ID` = `"cheri"`: `Status` = `OK`,
+  `Flavor Names` = `[spicy, dry, sweet, bitter, sour]` (5 entries, always all 5 flavors),
+  `Potencies` = `[10, 0, 0, 0, 0]`, parallel and in the same order.
+- **Get Location** (new, Data tab) — `Location Name Or ID` = `"canalave-city"`: `Status` = `OK`,
+  `Name` = `"canalave-city"`, `Region` = `"sinnoh"`.
+- **Get Location Areas** (new, Data tab) — same `Location Name Or ID` = `"canalave-city"`:
+  `Status` = `OK`, `Area Names` = `["canalave-city-area"]` (1 entry for this location).
+- **Get Machine** (new, Moves tab) — `Machine ID` = `1`: `Status` = `OK`, `Version Group` =
+  `"sword-shield"`, `Move Name Or ID` = `"mega-punch"`, `Item Name Or ID` = `"tm00"`. Wire
+  `Move Name Or ID` into `Get Move`'s `Move Name Or ID` input and `Item Name Or ID` into `Get
+  Item`'s `Item Name Or ID` input — confirm both resolve with no adapter component, `Get Move`
+  returns `Power` > 0, `Get Item` returns a non-empty `Category`.
+
+## v4.0.0 round 5 additions (Region / Pokedex / Egg Group / Growth Rate / Stat)
+
+- **Get Region** (new, Data tab) — `Region Name Or ID` = `"kanto"`: `Status` = `OK`,
+  `Name` = `"kanto"`, `Main Generation` = `"generation-i"`.
+- **Get Region Locations** (new, Data tab) — same `Region Name Or ID` = `"kanto"`: `Status` = `OK`,
+  `Location Names` has many entries including `"pallet-town"`, `"viridian-city"`. Wire one entry
+  into `Get Location`'s `Location Name Or ID` — confirms it resolves.
+- **Get Region Pokedexes** (new, Data tab) — same `Region Name Or ID` = `"kanto"`: `Status` = `OK`,
+  `Pokedex Name Or ID` = `["kanto", "letsgo-kanto"]`. Wire the first entry straight into
+  `Get Pokedex`'s `Pokedex Name Or ID` input (same name/type/access) — confirm it resolves with no
+  adapter component.
+- **Get Pokedex** (new, Data tab) — `Pokedex Name Or ID` = `"kanto"`: `Status` = `OK`,
+  `Name` = `"kanto"`, `Is Main Series` = `true`.
+- **Get Pokedex Species** (new, Data tab) — same `Pokedex Name Or ID` = `"kanto"`: `Status` = `OK`,
+  `Species Names` starts with `["bulbasaur", "ivysaur", "venusaur", ...]` in dex-entry order.
+- **Get Egg Group** (new, Pokemon tab) — `Egg Group Name Or ID` = `"monster"`: `Status` = `OK`,
+  `Name` = `"monster"`, `Species Names` includes `"bulbasaur"`, `"charmander"`. Wire
+  `Get Pokemon Species`'s `Egg Groups` output (for `"bulbasaur"`, which includes `"monster"`) into
+  this component's input — confirms the per-item chain.
+- **Get Growth Rate** (new, Pokemon tab) — `Growth Rate Name Or ID` = `"slow"`: `Status` = `OK`,
+  `Formula` is a non-empty LaTeX string, `Max Level` = `100`.
+- **Get Growth Rate Levels** (new, Pokemon tab) — same `Growth Rate Name Or ID` = `"slow"`:
+  `Status` = `OK`, `Levels` = `[1, 2, 3, ...]`, `Experience` = `[0, 10, 33, ...]`, parallel and in
+  order — plot `Levels` vs `Experience` to confirm the curve renders.
+- **Get Stat** (new, Stats tab) — `Stat Name Or ID` = `"hp"`: `Status` = `OK`,
+  `Is Battle Only` = `false`. Second check with `"accuracy"`: `Is Battle Only` = `true`.
+- **Get Stat Affecting Natures** (new, Stats tab) — `Stat Name Or ID` = `"attack"`: `Status` = `OK`,
+  `Increasing Natures` includes `"lonely"`, `"adamant"`, `"naughty"`; `Decreasing Natures` includes
+  `"bold"`. Wire one entry into `Get Nature`'s `Nature Name Or ID` input — confirms it resolves.
+- **Cache check** — place `Get Region` and `Get Region Locations` on the same canvas with the same
+  `Region Name Or ID`, then check the plugin's network activity (e.g. a proxy or Fiddler trace):
+  only one `GET /region/{id}/` should fire, confirming the shared `PokeDataClient` response cache
+  is working across both components.
+  appears in Rhino's Materials panel.
