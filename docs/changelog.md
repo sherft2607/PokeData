@@ -2,7 +2,8 @@
 
 ## 3.0.0 — 2026-09-18
 
-[GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) (v2.0.0, most recent tagged)
+[GitHub Release](https://github.com/sherft2607/PokeData/releases/tag/v3.0.0) · live on the
+[Yak Package Manager](https://yak.rhino3d.com/packages/pokedata)
 
 - New **Generative** tab, focused on generative computational geometry, topological networks,
   and battle-optimization solvers:

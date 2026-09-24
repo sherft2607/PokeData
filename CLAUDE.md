@@ -14,12 +14,14 @@ pr-dogfood, pr-session. MCPs used: pr-api-extractor, pr-api-tester, pr-icon-gene
 <!-- pr:begin state -->
 ## Current build state
 
-- Phase: 15 of 15 — Package + Ship (v3.0.0 round in progress)
+- Phase: 15 of 15 — Package + Ship (v3.0.0 shipped)
 - Gates passed: 1 (API overview), 2 (structure), 3 (AEC features — none), 4 (auto-cleared — 0
   FAILED/PARTIAL calls), 5 (auto-cleared — no auth to test), 6 (manual live test — initial build,
-  extend-round-1 Batch 1; v2.0.0 shipped as a tagged release, cross-platform Gate 6 re-test still
-  outstanding; v3.0.0 re-test also pending, same no-bridge constraint)
-- v2.0.0 shipped: tagged and pushed (`v2.0.0`), `publish.yml` fired to build the Release
+  extend-round-1 Batch 1, v2.0.0's 16 components, and v3.0.0's 5 components all confirmed by the
+  plugin author in a live Rhino session)
+- v2.0.0 and v3.0.0 both shipped: tagged, pushed, `publish.yml` built each GitHub Release (8
+  assets each), and both are live on the Yak Package Manager (`yak.rhino3d.com/packages/pokedata`,
+  confirmed at v3.0.0). Food4Rhino listing still pending — the plugin author's next step.
 - Extend rounds: round 1 / Batch 1 — added cries outputs to Get Pokemon, Associated Pokemon output
   to Get Type, new Get Pokemon Species and Sprite Downloader components. v2.0.0 round (2 batches,
   shipped as one release) — batch 1: Pokemon Cry, Type Matchup, Stat Radar (new Visualization
@@ -192,10 +194,11 @@ None. PokeAPI has no write endpoints, so there are no request bodies to construc
 - **This session's sandbox could not reach `pokeapi.co`** (TLS handshake reset — see `dogfood/`
   F5), so Phase 7 (API testing) was completed via the plugin author's manual verification against
   the live API instead of the automated `pr-api-tester` run.
-- **Gate 6 live re-tests are pending on the plugin author's machine** — same no-bridge constraint
-  as the original build; `demos/README.md`'s "v2.0.0 additions"/"v2.0.0 batch 2 additions"
-  sections cover the 16 v2.0.0 components, and a "v3.0.0 additions" section (once added) will
-  cover the 5 new v3.0.0 components — none of this has been confirmed live in Rhino yet.
+- **Gate 6 has now been confirmed live in Rhino by the plugin author**, covering the original
+  build, both v2.0.0 batches (16 components), and v3.0.0 (5 components) — `demos/README.md`'s
+  per-round sections hold the manual check steps that were run. The demos themselves remain
+  hand-built rather than pre-made `.gh` files, since no Grasshopper MCP bridge was available in
+  the session that generated this plugin.
 <!-- pr:end limitations -->
 
 <!-- pr:begin todo -->

@@ -9,8 +9,9 @@ solvers — no auth required, since PokeAPI is fully public.
 - **License:** MIT
 - **GitHub:** https://github.com/sherft2607/PokeData
 - **Food4Rhino:** _(pending listing)_
-- **Released:** 2026-09-17 — [v1.0.0](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0)
-  · [v2.0.0](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) · v3.0.0 pending tag + push
+- **Released:** [v1.0.0](https://github.com/sherft2607/PokeData/releases/tag/v1.0.0) (2026-09-17)
+  · [v2.0.0](https://github.com/sherft2607/PokeData/releases/tag/v2.0.0) ·
+  [v3.0.0](https://github.com/sherft2607/PokeData/releases/tag/v3.0.0) (2026-09-18, current)
 
 ## Install
 
